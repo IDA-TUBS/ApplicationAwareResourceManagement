@@ -59,14 +59,14 @@
         },
         "SENSORFUSION_TEST":
         {
-            "HOST_ID": "0x01DA0000000000000000000000000099",
+            "HOST_ID": "0x01DA0000000000000000000000000000",
             "CLIENT_ID": 1941657,
             "RM_CONTROL_LOCAL_IP": ["127.0.0.1"],
             "RM_CONTROL_LOCAL_PORT": 5000,
             "RM_CONTROL_RM_IP": [""],
             "RM_CONTROL_RM_PORT": 0,
-            "SERVICE_LOCAL_IP": ["127.0.0.1","","",""],
-            "SERVICE_LOCAL_PORT": [5001,5002,5999],
+            "SERVICE_LOCAL_IP": ["127.0.0.1","","","",""],
+            "SERVICE_LOCAL_PORT": [5100],
             "CLIENT_PRIORITY": 7
         }
     },
