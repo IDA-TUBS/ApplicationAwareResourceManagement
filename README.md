@@ -48,9 +48,13 @@ For compiling the source code cmake is mandatory
 	cd build/bin
 	./wired_rm SENSORFUSION_TEST
 	```
-3. executing resource manager client RM-Client
+3. executing resource manager client RM-Client on end nodes
 	```bash
 	./wired_rm_client_endnode TEST 999
+	```
+4. executing resource manager client RM-Client on switches
+	```bash
+	./wired_rm_client_switch TEST_SW
 	```
 
 ## License

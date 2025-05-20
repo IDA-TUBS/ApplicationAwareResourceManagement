@@ -272,7 +272,6 @@ namespace rscmng {
                 MessageNet_t* payload
             );
 
-
             /**
              * @brief Sends a sync request to the resource manager (rm_endpoint). 
              * 
@@ -297,7 +296,39 @@ namespace rscmng {
              * @param service_id source_id of the requested service
              * @param payload defines which payload the application requests (an application might allow multiple payload)
              */  
+            void send_sync_stop_exit(   
+                udp::endpoint target_address, 
+                uint32_t source_id, 
+                serviceID_t service_id,
+                uint32_t mode,
+                MessageNet_t* payload
+            );
+
+            /**
+             * @brief Sends a sync request to the resource manager (rm_endpoint). 
+             * 
+             * @param target_address destination address
+             * @param source_id source_id of the requesting application
+             * @param service_id source_id of the requested service
+             * @param payload defines which payload the application requests (an application might allow multiple payload)
+             */  
             void send_stop(   
+                udp::endpoint target_address, 
+                uint32_t source_id, 
+                serviceID_t service_id,
+                uint32_t mode,
+                MessageNet_t* payload
+            );
+            
+            /**
+             * @brief Sends a sync request to the resource manager (rm_endpoint). 
+             * 
+             * @param target_address destination address
+             * @param source_id source_id of the requesting application
+             * @param service_id source_id of the requested service
+             * @param payload defines which payload the application requests (an application might allow multiple payload)
+             */  
+            void send_stop_exit(   
                 udp::endpoint target_address, 
                 uint32_t source_id, 
                 serviceID_t service_id,
@@ -323,7 +354,6 @@ namespace rscmng {
                 MessageTypes message_type
             );
 
-
             /**
              * @brief Release to be used by the applications (publisher or subscriber)
              * 
@@ -337,7 +367,6 @@ namespace rscmng {
                 uint32_t source_id, 
                 serviceID_t service_id
             );          
-
 
             /**
              * @brief Acknowledge the reception of resource manager messages. Implementation incomplete. Currently sparsely used.

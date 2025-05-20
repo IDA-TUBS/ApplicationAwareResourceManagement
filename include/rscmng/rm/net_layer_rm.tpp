@@ -378,7 +378,7 @@ void NetLayerRM<T>::experiment_mode_change()
     {
         RM_logInfo("NetRM start experiments asynchronous.")
         experiment_mode_change_asynchronous();
-    }   
+    }      
 }
 
 
@@ -650,6 +650,8 @@ void NetLayerRM<T>::stopping_experiment_synchronous()
 
         send_synchronous_stop(target_time_stop_offset, target_time_reconfig_offset, target_time_start_offset, target_address, service_id, network_mode);
     }
+    RM_logInfo("NetRM EXIT Experiments.")
+    exit(0);
 }
 
 
@@ -787,7 +789,7 @@ void NetLayerRM<T>::send_synchronous_stop(struct timespec stop_time, struct time
 
     rm_protocol_payload.serialize(&rm_message);   
 
-    control_channel.send_sync_stop(target_address, demonstrator::RM_ID, service_id, network_mode, &rm_message);
+    control_channel.send_sync_stop_exit(target_address, demonstrator::RM_ID, service_id, network_mode, &rm_message);
 }
 
 
@@ -799,7 +801,7 @@ void NetLayerRM<T>::send_asynchronous_stop(udp::endpoint target_address, service
 {
     MessageNet_t rm_message;
 
-    control_channel.send_stop(target_address, demonstrator::RM_ID, service_id, network_mode, &rm_message);
+    control_channel.send_stop_exit(target_address, demonstrator::RM_ID, service_id, network_mode, &rm_message);
 }
 
 

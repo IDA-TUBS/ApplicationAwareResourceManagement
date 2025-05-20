@@ -279,6 +279,25 @@ void RMCommunication::send_sync_stop(
 /*
 *
 */
+void RMCommunication::send_sync_stop_exit(   
+    udp::endpoint target_address, 
+    uint32_t source_id, 
+    serviceID_t service_id,
+    uint32_t mode,
+    MessageNet_t* payload
+)
+{
+    RMMessage rm_message_out(RM_CLIENT_SYNC_TIMESTAMP_EXIT, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
+
+    sendout_control_message(rm_message_out, target_address);
+
+    RM_logInfo("RECONFIG SYNC sent: " << target_address.address() << " " << target_address.port())
+}
+
+
+/*
+*
+*/
 void RMCommunication::send_stop(   
     udp::endpoint target_address, 
     uint32_t source_id, 
@@ -288,6 +307,25 @@ void RMCommunication::send_stop(
 )
 {
     RMMessage rm_message_out(RM_CLIENT_STOP, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
+
+    sendout_control_message(rm_message_out, target_address);
+
+    RM_logInfo("RECONFIG SYNC sent: " << target_address.address() << " " << target_address.port())
+}
+
+
+/*
+*
+*/
+void RMCommunication::send_stop_exit(   
+    udp::endpoint target_address, 
+    uint32_t source_id, 
+    serviceID_t service_id,
+    uint32_t mode,
+    MessageNet_t* payload
+)
+{
+    RMMessage rm_message_out(RM_CLIENT_EXIT, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
 
     sendout_control_message(rm_message_out, target_address);
 

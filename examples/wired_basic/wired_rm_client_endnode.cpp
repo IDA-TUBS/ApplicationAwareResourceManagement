@@ -54,12 +54,14 @@ std::mutex cv_mutex;
 void handle_message(MessageNet_t received_payload);
 void handle_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
 void handle_stop_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
+void handle_exit_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
 void handle_pause_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
 void handle_reconfigure_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
 void handle_reconfigure_message_soft(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
 
 void handle_sync_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
 void handle_sync_stop_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
+void handle_sync_exit_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
 void handle_sync_pause_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
 void handle_sync_reconfigure_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
 void handle_sync_reconfigure_soft_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
@@ -182,9 +184,9 @@ int main(int argc, char* argv[])
     {
         std::unique_lock<std::mutex> lock(cv_mutex);
         cv_rm_notification.wait(lock);
-        if (active) 
-        {      
-            while (rm_client.check_next_control_message_aviable() == false)
+        //if (active) 
+        //{      
+            while (active && rm_client.check_next_control_message_aviable() == false)
             {
                 rscmng::wired::RMMessage recieved_control_message = rm_client.get_next_control_message();
                 MessageNet_t rm_payload_received;
@@ -275,19 +277,31 @@ int main(int argc, char* argv[])
                         rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, service_id);
                         break;
 
+                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_EXIT:
+                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_EXIT")
+                        rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
+                        handle_sync_exit_message(rm_payload_received, traffic_generator);
+                        break;
+                        
+                    case MessageTypes::RM_CLIENT_EXIT:
+                        RM_logInfo("RM Message RM_CLIENT_SYNC_EXIT")
+                        rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
+                        handle_exit_message(rm_payload_received, traffic_generator);
+                        break;
+
                     default:
                         RM_logInfo("RM client unknown message type arrived: " << recieved_control_message.message_type)
                         break;
                 };   
-            }                                                             
+            //}                                                             
         }
     }
-    RM_logInfo("RM client shutdown")
-    traffic_generator.stop();
-
+    RM_logInfo("RMClient release resources")
     rm_client.resource_release(service_id);
     rm_client.close();
 
+    RM_logInfo("RMClient shutdown bye.")
+    exit(0);
     return 0;
 }
 
@@ -344,6 +358,23 @@ void handle_stop_message(MessageNet_t received_payload, TrafficGenerator &traffi
     rm_client_protocol_payload.deserialize(&received_payload);
 
     traffic_generator.notify_generator(THREAD_STOP);
+
+    return;
+}
+
+
+/*
+*
+*/
+void handle_exit_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator)
+{
+    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;
+    received_payload.reset();
+    rm_client_protocol_payload.deserialize(&received_payload);
+
+    traffic_generator.notify_generator(THREAD_STOP);
+
+    active = false;
 
     return;
 }
@@ -564,6 +595,56 @@ void handle_sync_stop_message(MessageNet_t received_payload, TrafficGenerator &t
         }
     }
 
+    return;
+}
+
+
+/*
+*
+*/
+void handle_sync_exit_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator)
+{
+    struct timespec time_now = {0,0};
+    struct timespec timestamp_target_stop = {0,0};
+
+    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;
+    received_payload.reset();
+    rm_client_protocol_payload.deserialize(&received_payload);
+
+    timestamp_target_stop = rm_client_protocol_payload.get_timestamp_stop();
+
+    RM_logInfo("Timestamp Received restart s: " << timestamp_target_stop.tv_sec << " ns: " << timestamp_target_stop.tv_nsec)
+
+    bool stopped = false;
+    while(true)
+    {            
+        clock_gettime(CLOCK_REALTIME, &time_now);
+
+        
+        if (stopped == false)
+        {
+            if (timestamp_target_stop.tv_sec != 0 && timestamp_target_stop.tv_sec >= time_now.tv_sec)
+            {
+                if (time_now.tv_sec > timestamp_target_stop.tv_sec || (time_now.tv_sec == timestamp_target_stop.tv_sec && time_now.tv_nsec > timestamp_target_stop.tv_nsec))
+                {        
+                    traffic_generator.notify_generator(THREAD_STOP);                   
+                    clock_gettime(CLOCK_REALTIME, &time_now);
+                    RM_logInfo("endnode stopped with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
+                    //rm_client.send_ack_start();
+                    //sendRMMessage(sender_ID, std::ref(socket), destination_endpoint, RECONFDONE, content, mode, iterator);
+                    stopped = true;
+                    active = false;
+                    break;
+                }
+            }
+            else 
+            {
+                RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
+                break;
+            }
+        }
+    }
+    RM_logInfo("endnode stopped")
     return;
 }
 
