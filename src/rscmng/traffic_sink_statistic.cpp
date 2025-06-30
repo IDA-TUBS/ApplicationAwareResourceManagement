@@ -134,7 +134,7 @@ void TrafficSink::handle_message(udp::socket &traffic_socket)
         {
             //std::cout << "Traffic sink received frame from service: " << service_id << " " << source_address.address().to_string() << " from port " << source_address.port() << " on interface ip: " << local_endpoint_str << " on port: " << traffic_socket.local_endpoint().port() << " packet number: " << received_packet_number << " from Object number: " << received_object_number << " Time: " << time_received.tv_sec << " s "  << time_received.tv_nsec << " ns" << std::endl;
             fp = fopen(filename_str_log.c_str(), "a");
-            fprintf(fp,"Traffic sink received frame from service: %li %c from port %i on interface ip: %i on port %i with packet number %li from object %li at time %li s %ld ns", service_id, source_address.address().to_string(), source_address.port(),local_endpoint_str, traffic_socket.local_endpoint().port(), received_packet_number, received_object_number, time_received.tv_sec, time_received.tv_nsec);		
+            fprintf(fp,"Traffic sink received frame from service: %li %c from port %i on interface ip: %i on port %i with packet number %li from object %li at time %li s %ld ns\n", service_id, source_address.address().to_string(), source_address.port(),local_endpoint_str, traffic_socket.local_endpoint().port(), received_packet_number, received_object_number, time_received.tv_sec, time_received.tv_nsec);		
             fclose(fp);      
         }
                 

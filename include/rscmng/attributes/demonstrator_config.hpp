@@ -68,7 +68,7 @@ namespace demonstrator {
 
     const int NUMBER_PRIORITY_LEVEL = 4;
 
-    const int MAX_PROTOCOL_MESSAGE_LENGTH = 1458;
+    const int MAX_PROTOCOL_MESSAGE_LENGTH = 1427; // 1458
     
 };
 
@@ -87,7 +87,7 @@ namespace rscmng
 {
     #ifndef MAX_MSG_LENGTH
     #define MAX_MSG_LENGTH
-    enum { max_length = 1472 };
+    enum { max_length = 1472}; // 1472
     #endif
     
     typedef uint64_t serviceID_t;    
