@@ -1,0 +1,1009 @@
+{
+    "EXPERIMENT_SETTINGS":
+    {
+        "EXPERIMENT_NUMBER": 0,
+        "CLIENT_INIT_TIME[ms]": 15000,
+        "EXPERIMENT_BEGIN_OFFSET[ms]": 15000,
+        "EXPERIMENT_END_OFFSET[ms]": 15000,
+        "EXPERIMENT_ITERATIONS": 5,
+        "EXPERIMENT_SYNCHRONOUS_START_FLAG": false,
+        "MC_DISTRIBUTION_PHASE_DURATION[ms]": 10000,
+        "MC_CLIENT_STOP_OFFSET[ms]":0,
+        "MC_CLIENT_RECONFIG_OFFSET[ms]":0,
+        "MC_CLIENT_START_OFFSET[ms]":0,
+        "INTER_MC_GAP_MIN[ms]": 10000,
+        "INTER_MC_GAP_MAX[ms]": 12000,
+        "HYPERPERIOD_DURATION[ms]": 100,
+        "EXPERIMENT_STARTUP_MODE": 0,
+        "EXPERIMENT_STARTUP_MODE_MAP":
+        {
+            "0":
+            {
+                "1941521": 0,
+                "1941522": 0,
+                "1941523": 0,
+                "1941524": 0,
+                "1941537": 0,
+                "1941538": 0,
+                "1941539": 0,
+                "1941540": 0
+            },
+            "1":
+            {
+                "1941521": 10,
+                "1941522": 10,
+                "1941523": 10,
+                "1941524": 10,
+                "1941537": 0,
+                "1941538": 0,
+                "1941539": 0,
+                "1941540": 0
+            },
+            "2":
+            {
+                "1941521": 20,
+                "1941522": 20,
+                "1941523": 20,
+                "1941524": 20,
+                "1941537": 0,
+                "1941538": 0,
+                "1941539": 0,
+                "1941540": 0
+            },
+            "3":
+            {
+                "1941521": 30,
+                "1941522": 30,
+                "1941523": 30,
+                "1941524": 30,
+                "1941537": 0,
+                "1941538": 0,
+                "1941539": 0,
+                "1941540": 0
+            },
+            "4":
+            {
+                "1941521": 40,
+                "1941522": 40,
+                "1941523": 40,
+                "1941524": 40,
+                "1941537": 0,
+                "1941538": 0,
+                "1941539": 0,
+                "1941540": 0     
+            },
+            "5":
+            {
+                "1941521": 50,
+                "1941522": 50,
+                "1941648": 50,
+                "1941537": 0,
+                "1941538": 0,
+                "1941539": 0,
+                "1941540": 0     
+            },
+            "6":
+            {
+                "1941521": 60,
+                "1941522": 60,
+                "1941648": 60,
+                "1941537": 0,
+                "1941538": 0,
+                "1941539": 0,
+                "1941540": 0     
+            },
+            "7":
+            {
+                "1941521": 70,
+                "1941522": 70,
+                "1941648": 70,
+                "1941537": 0,
+                "1941538": 0,
+                "1941539": 0,
+                "1941540": 0     
+            }
+        },
+        "EXPERIMENT_RECONFIGURATION_ORDER": [0,1],
+        "EXPERIMENT_RECONFIGURATION_MAP":
+        {
+            "0":
+            {
+                "1941537": 10,
+                "1941538": 10,
+                "1941539": 10,
+                "1941540": 10
+            },
+            "1":
+            {
+                "1941537": 1,
+                "1941538": 1,
+                "1941539": 1,
+                "1941540": 1
+            },
+            "10":
+            {
+                "1941537": 10,
+                "1941538": 10,
+                "1941539": 10,
+                "1941540": 10
+            },
+            "11":
+            {
+                "1941537": 1,
+                "1941538": 1,
+                "1941539": 1,
+                "1941540": 1
+            },
+            "20":
+            {
+                "1941537": 10,
+                "1941538": 10,
+                "1941539": 10,
+                "1941540": 10
+            },
+            "21":
+            {
+                "1941537": 1,
+                "1941538": 1,
+                "1941539": 1,
+                "1941540": 1
+            },
+            "30":
+            {
+                "1941521": 30        
+            },
+            "31":
+            {
+                "1941521": 31            
+            },
+            "40":
+            {
+                "1941521": 40        
+            },
+            "41":
+            {
+                "1941521": 41            
+            },
+            "50":
+            {
+                "1941521": 50,
+                "1941522": 50    
+            },
+            "51":
+            {
+                "1941521": 51,
+                "1941522": 51         
+            },
+            "60":
+            {
+                "1941521": 60,
+                "1941522": 60                  
+            },
+            "61":
+            {
+                "1941521": 61,
+                "1941522": 61         
+            },
+            "70":
+            {
+                "1941521": 70,
+                "1941522": 70,
+                "1941648": 70                   
+            },
+            "71":
+            {
+                "1941521": 71,
+                "1941522": 71,
+                "1941648": 71        
+            }
+        }
+    },
+    "UNIT_SETTINGS":
+    {
+        "TEST":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000255",
+            "CLIENT_ID": 1942101,
+            "RM_CONTROL_LOCAL_IP": ["127.0.0.1"],
+            "RM_CONTROL_LOCAL_PORT": 5510,
+            "RM_CONTROL_RM_IP": ["127.0.0.1"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "TEST_SW":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000250",
+            "CLIENT_ID": 1942096,
+            "RM_CONTROL_LOCAL_IP": ["127.0.0.1"],
+            "RM_CONTROL_LOCAL_PORT": 5250,
+            "RM_CONTROL_RM_IP": ["127.0.0.1"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "SENSORFUSION_TEST":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000099",
+            "CLIENT_ID": 1941657,
+            "RM_CONTROL_LOCAL_IP": ["127.0.0.1"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": [""],
+            "RM_CONTROL_RM_PORT": 0,
+            "SERVICE_LOCAL_IP": ["127.0.0.1","196.255.127.16","",""],
+            "SERVICE_LOCAL_PORT": [5001,5002,5999],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_SG1":
+        {
+            "HOST_ID": "0x01DA000000000000000000000000011",
+            "CLIENT_ID": 1941521,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.11"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.230"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_SG2":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000012",
+            "CLIENT_ID": 1941522,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.12"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.230"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_SG3":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000013",
+            "CLIENT_ID": 1941523,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.13"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.232"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_SG4":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000014",
+            "CLIENT_ID": 1941524,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.14"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.232"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "SENSORFUSION":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000000",
+            "CLIENT_ID": 1941657,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.230","192.168.1.231","192.168.1.232"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": [""],
+            "RM_CONTROL_RM_PORT": 0,
+            "SERVICE_LOCAL_IP": ["192.168.1.230","192.168.1.231","192.168.1.232","192.168.1.132","192.168.1.133"],
+            "SERVICE_LOCAL_PORT": [5100,5200,5300,5400,5900],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_SW1":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000021",
+            "CLIENT_ID": 1941537,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.21"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.230"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_SW2":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000022",
+            "CLIENT_ID": 1941538,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.22"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.230"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_SW3":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000023",
+            "CLIENT_ID": 1941539,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.63"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.232"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_SW4":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000024",
+            "CLIENT_ID": 1941540,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.34"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.232"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        },
+        "CLIENT_GW":
+        {
+            "HOST_ID": "0x01DA0000000000000000000000000090",
+            "CLIENT_ID": 1941648,
+            "RM_CONTROL_LOCAL_IP": ["192.168.1.90","192.168.1.91"],
+            "RM_CONTROL_LOCAL_PORT": 5000,
+            "RM_CONTROL_RM_IP": ["192.168.1.230"],
+            "RM_CONTROL_RM_PORT": 5000,
+            "SERVICE_LOCAL_IP": [""],
+            "SERVICE_LOCAL_PORT": [],
+            "CLIENT_PRIORITY": 7
+        }
+    },
+
+    "SERVICE_SETTINGS":
+    {
+        "100":
+        {
+            "0":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,1,9],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "1":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,1,9],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "10":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "20":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "30":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "31":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.133",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "40":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "41":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.133",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "50":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 1000,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 35,
+                "SLOT_LENGTH [ms]": 15,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "51":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 1000,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 67,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "60":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "61":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 26,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "70":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "71":
+            {
+                "SERVICE_ID": 100,
+                "SERVICE_IP": "192.168.1.132",
+                "PORT": 5100,
+                "PATH": [5,4,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            }
+        },
+        "200":
+        {
+            "0":
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "1":
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "10":
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "20":
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "30":
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "40":
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "50": 
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 1000,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 50,
+                "SLOT_LENGTH [ms]": 15,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "51": 
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 1000,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 67,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "60": 
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 800,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 35,
+                "SLOT_LENGTH [ms]": 15,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "61": 
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 800,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 15,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "70": 
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 1000,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 35,
+                "SLOT_LENGTH [ms]": 15,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "71": 
+            {
+                "SERVICE_ID": 200,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5200,
+                "PATH": [6,9],
+                "OBJECT_SIZE [KByte]": 5000,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 35,
+                "SLOT_LENGTH [ms]": 40,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            }
+        },
+        "300":
+        {
+            "0":
+            {
+                "SERVICE_ID": 300,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5300,
+                "PATH": [8,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "1":
+            {
+                "SERVICE_ID": 300,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5300,
+                "PATH": [8,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            }, 
+            "10":
+            {
+                "SERVICE_ID": 300,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5300,
+                "PATH": [8,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "20":
+            {
+                "SERVICE_ID": 300,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5300,
+                "PATH": [8,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "30":
+            {
+                "SERVICE_ID": 300,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5300,
+                "PATH": [8,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },         
+            "40":
+            {
+                "SERVICE_ID": 300,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5300,
+                "PATH": [8,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 33,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            }
+        },
+        "400":
+        {
+            "0":
+            {
+                "SERVICE_ID": 400,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5400,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 66,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "1":
+            {
+                "SERVICE_ID": 400,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5400,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 66,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "10":
+            {
+                "SERVICE_ID": 400,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5400,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 66,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "20":
+            {
+                "SERVICE_ID": 400,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5400,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 66,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "30":
+            {
+                "SERVICE_ID": 400,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5400,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 66,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "40":
+            {
+                "SERVICE_ID": 400,
+                "SERVICE_IP": "192.168.1.232",
+                "PORT": 5400,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 66,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            }
+        },
+        "900":
+        {
+            "0":
+            {
+                "SERVICE_ID": 900,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5900,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 100,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "50":
+            {
+                "SERVICE_ID": 900,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5900,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "51":
+            {
+                "SERVICE_ID": 900,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5900,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 1,
+                "SLOT_LENGTH [ms]": 33,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },            
+            "60":
+            {
+                "SERVICE_ID": 900,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5900,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 67,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "61":
+            {
+                "SERVICE_ID": 900,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5900,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 67,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "70":
+            {
+                "SERVICE_ID": 900,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5900,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2500,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 67,
+                "SLOT_LENGTH [ms]": 30,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            },
+            "71":
+            {
+                "SERVICE_ID": 900,
+                "SERVICE_IP": "192.168.1.230",
+                "PORT": 5900,
+                "PATH": [7,3,11],
+                "OBJECT_SIZE [KByte]": 2000,
+                "DEADLINE [ms]": 100,
+                "PRIORITY": 3,
+                "SLOT_OFFSET [ms]": 80,
+                "SLOT_LENGTH [ms]": 20,
+                "INTER_PACKET_GAP[us]": 0,
+                "INTER_OBJECT_GAP[us]": 0
+            }
+        }
+    }
+}
