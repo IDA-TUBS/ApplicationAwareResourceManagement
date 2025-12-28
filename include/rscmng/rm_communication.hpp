@@ -68,8 +68,20 @@ namespace rscmng {
             private:
             boost::asio::io_context rm_context;
             
+            public:                     
+            uint32_t source_id;
+            /**
+            * @brief socket for sending rm control channel messages
+            */
+            udp::socket control_channel_socket;
+            /**
+            * @brief endpoint for sending rm control channel messages
+            */
+            udp::endpoint control_channel_local_endpoint;
+            udp::endpoint broadcast;
+            size_t rm_message_len;      
+            std::mutex send_lock;
 
-            public:
             /**     
              * @brief Construct a new RMCommunication::RMCommunication object for loopback communication only
              * 
@@ -160,34 +172,6 @@ namespace rscmng {
 
 
             /**
-             * 
-             */
-            void send_request(RMMessage message);
-
-
-            /**
-             * @brief Sends a resource request to the resource manager (rm_endpoint). The function call blocks until either a grant, deny or app deny message has been received.
-             * 
-             * @param participant_type message_type of the application (publisher/subscriber)
-             * @param priority network priority of the applications traffic
-             * @param source_id source_id of the requesting application
-             * @param service_id source_id of the requested service
-             * @param protocol_id source_id of the employed protocol
-             * @param payload defines which payload the application requests (an application might allow multiple payload)
-             */
-            void send_request(   
-                udp::endpoint target_address, 
-                Participant participant_type, 
-                uint8_t priority,
-                uint32_t source_id, 
-                uint8_t mode,
-                serviceID_t service_id,
-                ProtocolIDs protocol_id, 
-                MessageNet_t* payload
-            );
-
-
-            /**
              * @brief Sends a sync request to the resource manager (rm_endpoint). 
              * 
              * @param priority network priority of the applications traffic
@@ -219,7 +203,8 @@ namespace rscmng {
              */       
             void send_start_sync(   
                 udp::endpoint target_address, 
-                uint32_t source_id, 
+                uint32_t source_id,  
+                uint8_t mode,
                 serviceID_t service_id,
                 MessageNet_t* payload
             );
@@ -236,6 +221,7 @@ namespace rscmng {
             void send_start(   
                 udp::endpoint target_address, 
                 uint32_t source_id, 
+                uint8_t mode,
                 serviceID_t service_id,
                 MessageNet_t* payload
             );
@@ -251,6 +237,7 @@ namespace rscmng {
             void send_reconfig(   
                 udp::endpoint target_address, 
                 uint32_t source_id, 
+                uint32_t destination_id,
                 serviceID_t service_id,
                 uint32_t mode,
                 MessageNet_t* payload
@@ -267,8 +254,27 @@ namespace rscmng {
             void send_sync_reconfig(   
                 udp::endpoint target_address, 
                 uint32_t source_id, 
+                uint32_t destination_id,
                 serviceID_t service_id,
                 uint32_t mode,
+                MessageNet_t* payload
+            );
+            
+            /**
+             * @brief Sends a sync request to the resource manager (rm_endpoint). 
+             * 
+             * @param target_address destination address
+             * @param source_id source_id of the requesting application
+             * @param service_id source_id of the requested service
+             * @param payload defines which payload the application requests (an application might allow multiple payload)
+             */ 
+            void send_sync_reconfig_type(   
+                udp::endpoint target_address, 
+                uint32_t source_id, 
+                uint32_t destination_id,
+                serviceID_t service_id,
+                uint32_t mode,
+                MessageTypes message_type,
                 MessageNet_t* payload
             );
 
@@ -335,24 +341,18 @@ namespace rscmng {
                 uint32_t mode,
                 MessageNet_t* payload
             );
+            
 
             /**
-             * @brief Sends a sync request to the resource manager (rm_endpoint). 
              * 
-             * @param priority network priority of the applications traffic
-             * @param source_id source_id of the requesting application
-             * @param service_id source_id of the requested service
-             * @param protocol_id source_id of the employed protocol
-             * @param MessageTypes identifier for type of message
-             * @param payload defines which payload the application requests (an application might allow multiple payload)
-             */ 
-            void send_timestamp(   
+             */
+            void send_error(   
                 udp::endpoint target_address, 
                 uint32_t source_id, 
-                serviceID_t service_id,
-                MessageNet_t* payload,
-                MessageTypes message_type
+                uint32_t destination_id, 
+                uint8_t mode
             );
+
 
             /**
              * @brief Release to be used by the applications (publisher or subscriber)
@@ -368,36 +368,6 @@ namespace rscmng {
                 serviceID_t service_id
             );          
 
-            /**
-             * @brief Acknowledge the reception of resource manager messages. Implementation incomplete. Currently sparsely used.
-             * 
-             * @param sender_endpoint the address of ACK recipient
-             * @param source_id source_id of the application sending the ACK
-             * @param destination_id ID of the acknowleding entity
-             * @param service_id ID ot the requested service
-             */
-            void send_ack(       
-                udp::endpoint sender_endpoint, 
-                uint32_t source_id,
-                uint32_t destination_id,
-                uint8_t mode,
-                serviceID_t service_id
-            );
-
-            /**
-             * @brief For future use
-             * 
-             * @param sender_endpoint 
-             * @param source_id source_id of the application sending the NACK
-             * @param destination_id ID of the acknowleding entity
-             * @param service_id ID ot the requested service
-             */
-            void send_nack(  
-                udp::endpoint sender_endpoint, 
-                uint32_t source_id,
-                uint32_t destination_id,
-                serviceID_t service_id
-            );
 
             /**
              * @brief receive resource management messages (from requesting application or the resource manager)
@@ -407,40 +377,12 @@ namespace rscmng {
              */
             udp::endpoint receive_control_message(struct RMMessage &message);
 
-            /**
-             * @brief receive resource management messages (from requesting application or the resource manager). Non blocking overload
-             * 
-             * @param message RMMessage object used to store the received message
-             * @param active flag indicating whether the thread executing the recv function shall terminate
-             * @return udp::endpoint 
-             */
-            udp::endpoint receive_control_message(   
-                RMMessage &message, 
-                bool &active
-            );
 
             /**
              * @brief close the socket used for resource management
              * 
              */
             void close();
-
-            uint32_t source_id;
-
-            /**
-            * @brief socket for sending rm control channel messages
-            */
-            udp::socket control_channel_socket;
-
-            /**
-            * @brief endpoint for sending rm control channel messages
-            */
-            udp::endpoint control_channel_local_endpoint;
-
-
-            udp::endpoint broadcast;
-            size_t rm_message_len;      
-            std::mutex send_lock;
         };
 
     };

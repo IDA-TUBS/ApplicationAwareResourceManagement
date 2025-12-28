@@ -67,7 +67,8 @@ namespace rscmng{
         #define DEADLINE "DEADLINE [ms]"
         #define OBJECTSIZE "OBJECT_SIZE [KByte]"
         #define PRIORITY "PRIORITY"
-        #define OFFSET "OFFSET [ms]"
+        #define SLOT_OFFSET "SLOT_OFFSET [ms]"
+        #define SLOT_LENGTH "SLOT_LENGTH [ms]"
         #define INTER_PACKET_GAP "INTER_PACKET_GAP[us]"
         #define INTER_OBJECT_GAP "INTER_OBJECT_GAP[us]"
 
@@ -87,6 +88,8 @@ namespace rscmng{
         #define INTER_MC_GAP_MAX "INTER_MC_GAP_MAX[ms]"
         #define HYPERPERIOD_DURATION "HYPERPERIOD_DURATION[ms]"
         #define HYPERPERIOD_SLOTS "HYPERPERIOD_SLOTS"
+        #define EXPERIMENT_STARTUP_MODE "EXPERIMENT_STARTUP_MODE"
+        #define EXPERIMENT_STARTUP_MODE_MAP "EXPERIMENT_STARTUP_MODE_MAP"
         #define EXPERIMENT_RECONFIGURATION_ORDER "EXPERIMENT_RECONFIGURATION_ORDER"
         #define EXPERIMENT_RECONFIGURATION_MAP "EXPERIMENT_RECONFIGURATION_MAP"
 
@@ -97,13 +100,17 @@ namespace rscmng{
             std::string ip_address;
             uint32_t port;
             std::vector<uint32_t> data_path;
-            std::string source_type;
+            //std::string source_type;
             uint32_t object_size;
             uint32_t deadline;
             uint32_t service_priority;
-            uint32_t offset;
+            uint32_t slot_offset;
+            uint32_t slot_length;
             std::chrono::microseconds inter_packet_gap;
             std::chrono::microseconds inter_object_gap;
+            //calculated values
+            uint32_t number_packets;
+            double estimated_transmission_time_ms;
         };
 
         struct unit_settings 
@@ -127,7 +134,7 @@ namespace rscmng{
             std::chrono::milliseconds experiment_begin_offset;
             std::chrono::milliseconds experiment_end_offset;
             uint32_t experiment_iterations;
-            bool synchronous_mode;
+            //bool synchronous_mode;
             bool synchronous_start_mode;
             std::chrono::milliseconds mc_distribution_phase_duration;
             std::chrono::milliseconds mc_client_stop_offset;
@@ -137,6 +144,8 @@ namespace rscmng{
             std::chrono::milliseconds inter_mc_gap_max;
             std::chrono::milliseconds hyperperiod_duration;
             uint32_t hyperperiod_slots;
+            uint32_t startup_mode;
+            std::map<uint32_t,std::map<uint32_t,uint32_t>> startup_mode_map;
             std::list<uint32_t> reconfiguration_order;
             // mode <client_id, mode>
             std::map<uint32_t,std::map<uint32_t,uint32_t>> reconfiguration_map;

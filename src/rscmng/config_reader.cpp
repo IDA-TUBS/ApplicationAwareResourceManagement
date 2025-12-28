@@ -189,11 +189,11 @@ void ConfigReader::print_all_services(std::map<uint32_t, std::map<uint32_t, stru
                 oss << path << " ";   
             }
             RM_logInfo("# Service data path         : " << oss.str())
-            RM_logInfo("# Service source type       : " << service.source_type)
+            //RM_logInfo("# Service source type       : " << service.source_type)
             RM_logInfo("# Service object_size       : " << service.object_size << " KB")
             RM_logInfo("# Service deadline          : " << service.deadline << " ms")
             RM_logInfo("# Service priority          : " << service.service_priority)
-            RM_logInfo("# Service offset            : " << service.offset << " ms")
+            RM_logInfo("# Service slot_offset            : " << service.slot_offset << " ms")
             RM_logInfo("#----------------------------------------------#")
         }
     }
@@ -224,7 +224,8 @@ void ConfigReader::print_service(std::map<uint32_t, struct service_settings> ser
         RM_logInfo("# Service object_size       : " << service.object_size << " KB")
         RM_logInfo("# Service deadline          : " << service.deadline << " ms")
         RM_logInfo("# Service priority          : " << service.service_priority)
-        RM_logInfo("# Service offset            : " << service.offset << " ms")
+        RM_logInfo("# Service slot_offset       : " << service.slot_offset << " ms")
+        RM_logInfo("# Service slot_length       : " << service.slot_length << " ms")
         RM_logInfo("# Service inter packet gap  : " << service.inter_packet_gap.count() << " us")
         RM_logInfo("# Service inter object gap  : " << service.inter_object_gap.count() << " us")
         RM_logInfo("#----------------------------------------------#")
@@ -309,9 +310,9 @@ void ConfigReader::print_experiment_settings(struct experiment_parameter& experi
     RM_logInfo("#---------- Experiment Configuration -------------#");
     RM_logInfo("# Experiment Number          : " << experiment_settings.experiment_number);
     RM_logInfo("# Client Init time           : " << experiment_settings.client_init_time.count() << " ms");
-    RM_logInfo("# Experiment begin offset    : " << experiment_settings.experiment_begin_offset.count() << " ms");
+    RM_logInfo("# Experiment begin slot_offset    : " << experiment_settings.experiment_begin_offset.count() << " ms");
     RM_logInfo("# Experiment Iterations      : " << experiment_settings.experiment_iterations);
-    RM_logInfo("# Synchronous Mode           : " << (experiment_settings.synchronous_mode ? "True" : "False"));
+    //RM_logInfo("# Synchronous Mode           : " << (experiment_settings.synchronous_mode ? "True" : "False"));
     RM_logInfo("# Mode Distribution Time     : " << experiment_settings.mc_distribution_phase_duration.count() << " ms");
     RM_logInfo("# Stop Offset                : " << experiment_settings.mc_client_stop_offset.count() << " ms");
     RM_logInfo("# Reconfiguration Offset     : " << experiment_settings.mc_client_reconfig_offset.count() << " ms");
@@ -319,8 +320,19 @@ void ConfigReader::print_experiment_settings(struct experiment_parameter& experi
     RM_logInfo("# Inter-MC Gap Min           : " << experiment_settings.inter_mc_gap_min.count() << " ms");
     RM_logInfo("# Inter-MC Gap Max           : " << experiment_settings.inter_mc_gap_max.count() << " ms");
     RM_logInfo("# Hyperperiod Duration       : " << experiment_settings.hyperperiod_duration.count() << " ms");
-    RM_logInfo("# Hyperperiod Slots          : " << experiment_settings.hyperperiod_slots << " ms");
-
+    //RM_logInfo("# Hyperperiod Slots          : " << experiment_settings.hyperperiod_slots << " ms");
+    RM_logInfo("# Startup mode               : " << experiment_settings.startup_mode);
+    
+    RM_logInfo("# Startup mode Map          :");
+    for (const auto& outer_entry : experiment_settings.startup_mode_map) 
+    {
+        uint32_t mode = outer_entry.first;
+        RM_logInfo("#  Mode " << mode << ":");
+        for (const auto& inner_entry : outer_entry.second) 
+        {
+            RM_logInfo("    - ID: " << inner_entry.first << ", Value: " << inner_entry.second);
+        }
+    }
     std::ostringstream oss;
     for (const auto& order : experiment_settings.reconfiguration_order) 
     {
@@ -386,11 +398,12 @@ struct service_settings ConfigReader::parse_service_settings(boost::property_tre
     {
         service_settings_struct.data_path.push_back(path.second.get_value<uint32_t>());
     }
-    service_settings_struct.source_type      = service_tree.get<std::string>(SOURCE_TYPE);
+    //service_settings_struct.source_type      = service_tree.get<std::string>(SOURCE_TYPE);
     service_settings_struct.object_size      = service_tree.get<uint32_t>(OBJECTSIZE);
     service_settings_struct.deadline         = service_tree.get<uint32_t>(DEADLINE);
     service_settings_struct.service_priority = service_tree.get<uint32_t>(PRIORITY);
-    service_settings_struct.offset           = service_tree.get<uint32_t>(OFFSET);
+    service_settings_struct.slot_offset      = service_tree.get<uint32_t>(SLOT_OFFSET);
+    service_settings_struct.slot_length      = service_tree.get<uint32_t>(SLOT_LENGTH);
     service_settings_struct.inter_packet_gap = std::chrono::microseconds(service_tree.get<uint32_t>(INTER_PACKET_GAP));
     service_settings_struct.inter_object_gap = std::chrono::microseconds(service_tree.get<uint32_t>(INTER_OBJECT_GAP));
     
@@ -507,8 +520,8 @@ struct experiment_parameter ConfigReader::check_experiment_settings(boost::prope
     experiment_settings.experiment_begin_offset         = std::chrono::milliseconds(experiment_tree.get<uint32_t>(EXPERIMENT_BEGIN_OFFSET));
     experiment_settings.experiment_end_offset           = std::chrono::milliseconds(experiment_tree.get<uint32_t>(EXPERIMENT_END_OFFSET));
     experiment_settings.experiment_iterations           = experiment_tree.get<uint32_t>(EXPERIMENT_ITERATIONS);
-    experiment_settings.synchronous_mode                 = experiment_tree.get<bool>(EXPERIMENT_SYNCHRONOUS_FLAG);
-    experiment_settings.synchronous_start_mode           = experiment_tree.get<bool>(EXPERIMENT_SYNCHRONOUS_START_FLAG);
+    //experiment_settings.synchronous_mode                 = experiment_tree.get<bool>(EXPERIMENT_SYNCHRONOUS_FLAG);
+    experiment_settings.synchronous_start_mode          = experiment_tree.get<bool>(EXPERIMENT_SYNCHRONOUS_START_FLAG);
     experiment_settings.mc_distribution_phase_duration  = std::chrono::milliseconds(experiment_tree.get<uint32_t>(MC_DISTRIBUTION_PHASE_DURATION));
     experiment_settings.mc_client_stop_offset           = std::chrono::milliseconds(experiment_tree.get<uint32_t>(MC_CLIENT_STOP_OFFSET));
     experiment_settings.mc_client_reconfig_offset       = std::chrono::milliseconds(experiment_tree.get<uint32_t>(MC_CLIENT_RECONFIG_OFFSET));
@@ -516,13 +529,26 @@ struct experiment_parameter ConfigReader::check_experiment_settings(boost::prope
     experiment_settings.inter_mc_gap_min                = std::chrono::milliseconds(experiment_tree.get<uint32_t>(INTER_MC_GAP_MIN));
     experiment_settings.inter_mc_gap_max                = std::chrono::milliseconds(experiment_tree.get<uint32_t>(INTER_MC_GAP_MAX));
     experiment_settings.hyperperiod_duration            = std::chrono::milliseconds(experiment_tree.get<uint32_t>(HYPERPERIOD_DURATION));
-    experiment_settings.hyperperiod_slots               = experiment_tree.get<uint32_t>(HYPERPERIOD_SLOTS);
+    //experiment_settings.hyperperiod_slots               = experiment_tree.get<uint32_t>(HYPERPERIOD_SLOTS);
+
+    experiment_settings.startup_mode = experiment_tree.get<uint32_t>(EXPERIMENT_STARTUP_MODE); 
+    for (const auto& outer : experiment_tree.get_child(EXPERIMENT_STARTUP_MODE_MAP)) 
+    {
+        uint32_t outer_key = std::stoi(outer.first);  // Convert string key to integer
+        std::map<uint32_t, uint32_t> inner_map;
+        for (const auto& inner : outer.second) 
+        {
+            uint32_t inner_key = std::stoi(inner.first);  // Convert string key to integer
+            uint32_t value = inner.second.get_value<uint32_t>();
+            inner_map[inner_key] = value;
+        }
+        experiment_settings.startup_mode_map[outer_key] = inner_map;
+    }
 
     for (const auto &reconfiguration_order_child : experiment_tree.get_child(EXPERIMENT_RECONFIGURATION_ORDER)) 
     {
         experiment_settings.reconfiguration_order.push_back(reconfiguration_order_child.second.get_value<uint32_t>());
     }            
-
     for (const auto& outer : experiment_tree.get_child(EXPERIMENT_RECONFIGURATION_MAP)) 
     {
         uint32_t outer_key = std::stoi(outer.first);  // Convert string key to integer

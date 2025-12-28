@@ -21,6 +21,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <ctime>
 #include <unistd.h>
 #include <mutex>
 #include <condition_variable>
@@ -35,6 +36,7 @@
 #include <rscmng/traffic_generator.hpp>
 
 
+using namespace std::chrono;
 using namespace rscmng;
 using namespace wired;
 using namespace basic_protocol;
@@ -52,20 +54,20 @@ std::mutex cv_mutex;
 
 
 void handle_message(MessageNet_t received_payload);
-void handle_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
+void handle_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
 void handle_stop_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
-void handle_exit_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
-void handle_pause_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
 void handle_reconfigure_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
-void handle_reconfigure_message_soft(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
+void handle_exit_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
+void handle_sync_reconfigure_hw_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
+void handle_sync_reconfigure_sw_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
 
-void handle_sync_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
+void handle_sync_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
 void handle_sync_stop_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
 void handle_sync_exit_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
-void handle_sync_pause_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator);
-void handle_sync_reconfigure_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
-void handle_sync_reconfigure_soft_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
+void handle_sync_reconfigure_sync_object_hw_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
+void handle_sync_reconfigure_sync_object_sw_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode);
 
+std::chrono::steady_clock::time_point timespec_to_steady(const struct timespec& timestamp);
 
 
 /*
@@ -109,6 +111,8 @@ int main(int argc, char* argv[])
     std::map<uint32_t, struct rscmng::config::service_settings> service_configuration = config_reader.load_service_settings(service_id_int, DEFAULT_CONFIG);
     struct rscmng::config::experiment_parameter experiment_parameter = config_reader.load_experiment_settings(DEFAULT_CONFIG);
 
+    config_reader.print_unit(client_configuration);
+    config_reader.print_service(service_configuration);
     RM_logInfo("Load config done.") 
 
     // initialize variables
@@ -124,7 +128,6 @@ int main(int argc, char* argv[])
     // Initialize RM client
     RMAbstraction rm_client(client_configuration, cv_rm_notification);
 
-
     traffic_generator_parameter traffic_pattern;
     traffic_pattern.info_flag = false;
     traffic_pattern.period = std::chrono::milliseconds(service_configuration[0].deadline);
@@ -132,17 +135,8 @@ int main(int argc, char* argv[])
     traffic_pattern.inter_object_gap = service_configuration[0].inter_object_gap;
     traffic_pattern.inter_packet_gap = service_configuration[0].inter_packet_gap;
 
-    TrafficSourceType traffic_source_type = TrafficSourceType::OBJECT_BURST_SHAPED_IP;
-    if (service_configuration[0].source_type == "OBJECT_BURST_SHAPED_IP")
-    {
-        traffic_source_type = TrafficSourceType::OBJECT_BURST_SHAPED_IP;
-    }
-    else if (service_configuration[0].source_type == "OBJECT_BURST_SHAPED")
-    {
-        traffic_source_type = TrafficSourceType::OBJECT_BURST_SHAPED;
-    }
-
-    TrafficGenerator traffic_generator(service_configuration, client_configuration, traffic_source_type, traffic_pattern);
+    TrafficSourceType traffic_source_type = TrafficSourceType::OBJECT_BURST_DYNAMIC_CHANGE;
+    TrafficGenerator traffic_generator(service_configuration, client_configuration, experiment_parameter, traffic_source_type, traffic_pattern);
 
     struct rscmng::config::service_settings service_setting_mode_0 = service_configuration[0];
     rscmng::rm_wired_basic_protocol::RMPayload::network_resource_request client_resources_request_mode_0;
@@ -198,7 +192,7 @@ int main(int argc, char* argv[])
                 {                
                     case MessageTypes::RM_CLIENT_START:
                         RM_logInfo("RM Message RM_CLIENT_START")
-                        handle_start_message(rm_payload_received, traffic_generator);
+                        handle_start_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
                         break;
 
                     case MessageTypes::RM_CLIENT_STOP:
@@ -207,36 +201,17 @@ int main(int argc, char* argv[])
                         handle_stop_message(rm_payload_received, traffic_generator);
                         break;
 
-                    case MessageTypes::RM_CLIENT_PAUSE:
-                        RM_logInfo("RM Message RM_CLIENT_PAUSE")
+                    case MessageTypes::RM_CLIENT_RECONFIGURE_SW:
                         rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
-                        handle_pause_message(rm_payload_received, traffic_generator);
-                        break;
-
-                    case MessageTypes::RM_CLIENT_RECONFIGURE:
-                        rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
-                        if (experiment_parameter.experiment_number == 2)
-                        {
-                            RM_logInfo("RM Message RM_CLIENT_RECONFIGURE Experiment 2")
-                            handle_reconfigure_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
-                        }
-                        else if (experiment_parameter.experiment_number == 3)
-                        {
-                            RM_logInfo("RM Message RM_CLIENT_RECONFIGURE Experiment 3")
-                            handle_reconfigure_message_soft(rm_payload_received, traffic_generator, recieved_control_message.mode);
-                        }
-                        else
-                        {
-                            RM_logInfo("RM Message RM_CLIENT_RECONFIGURE with unknown experiment: "<< experiment_parameter.experiment_number)
-
-                        }
+                        RM_logInfo("RM Message RM_CLIENT_RECONFIGURE_HW")
+                        handle_reconfigure_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
                         rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, service_id);
                         break;
                         
                     case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_START:
                         RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_START")
                         rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
-                        handle_sync_start_message(rm_payload_received, traffic_generator);
+                        handle_sync_start_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
                         break;
                     
                     case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_STOP:
@@ -245,35 +220,31 @@ int main(int argc, char* argv[])
                         handle_sync_stop_message(rm_payload_received, traffic_generator);
                         break;
 
-                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_PAUSE:
-                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_PAUSE")
+                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_HW:                    
                         rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
-                        handle_sync_pause_message(rm_payload_received, traffic_generator);
-                        break;
-
-                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE:                    
-                        rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
-                        if (experiment_parameter.experiment_number == 2)
-                        {
-                            RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE Experiment 2")
-                            handle_sync_reconfigure_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
-                        }
-                        else if (experiment_parameter.experiment_number == 3)
-                        {
-                            RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE Experiment 3")
-                            handle_sync_reconfigure_soft_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
-                        }
-                        else
-                        {
-                            RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE with unknown experiment: "<< experiment_parameter.experiment_number)
-
-                        }
+                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE")
+                        handle_sync_reconfigure_hw_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
                         rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, service_id);
                         break;
 
-                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SOFT:
-                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SOFT")
+                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SW:                    
                         rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
+                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE")
+                        handle_sync_reconfigure_sw_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
+                        rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, service_id);
+                        break;
+
+                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SYNC_OBJECT_HW:   
+                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SYNC_OBJECT_HW: " << std::to_string(recieved_control_message.mode))                 
+                        rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
+                        handle_sync_reconfigure_sync_object_hw_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
+                        rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, service_id);
+                        break;
+                    
+                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SYNC_OBJECT_SW:   
+                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SYNC_OBJECT_SW: " << std::to_string(recieved_control_message.mode))                 
+                        rm_client.sync_ack_receive(&rm_payload_sendout, service_id);
+                        handle_sync_reconfigure_sync_object_sw_message(rm_payload_received, traffic_generator, recieved_control_message.mode);
                         rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, service_id);
                         break;
 
@@ -336,13 +307,18 @@ void handle_message(MessageNet_t received_payload)
 /*
 *
 */
-void handle_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator)
+void handle_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
 {
     rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;
+    struct timespec time_now = {0,0};
+
     received_payload.reset();
     rm_client_protocol_payload.deserialize(&received_payload);
 
-    traffic_generator.notify_generator(THREAD_TRANSMISSION);
+    clock_gettime(CLOCK_REALTIME, &time_now);
+
+    traffic_generator.notify_generator_timestamp(THREAD_TRANSMISSION, time_now, mode, true);                  
+    RM_logInfo("endnode started with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")                
 
     return;
 }
@@ -358,6 +334,28 @@ void handle_stop_message(MessageNet_t received_payload, TrafficGenerator &traffi
     rm_client_protocol_payload.deserialize(&received_payload);
 
     traffic_generator.notify_generator(THREAD_STOP);
+
+    return;
+}
+
+
+/*
+*
+*/
+void handle_reconfigure_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
+{
+    struct timespec time_now = {0,0};
+    struct timespec timestamp_target_stop = {0,0};
+    struct timespec timestamp_target_reconfig = {0,0};
+    struct timespec timestamp_target_restart = {0,0};
+
+    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
+    rm_client_protocol_payload.deserialize(&received_payload);
+
+    clock_gettime(CLOCK_REALTIME, &time_now);
+    traffic_generator.notify_generator_mode_change(THREAD_TRANSMISSION, mode);                   
+    RM_logInfo("process started with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
+
 
     return;
 }
@@ -383,22 +381,7 @@ void handle_exit_message(MessageNet_t received_payload, TrafficGenerator &traffi
 /*
 *
 */
-void handle_pause_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator)
-{
-    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;
-    received_payload.reset();
-    rm_client_protocol_payload.deserialize(&received_payload);
-
-    traffic_generator.notify_generator(THREAD_PAUSED);
-
-    return;
-}
-
-
-/*
-*
-*/
-void handle_reconfigure_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
+void handle_sync_reconfigure_hw_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
 {
     struct timespec time_now = {0,0};
     struct timespec timestamp_target_stop = {0,0};
@@ -407,7 +390,6 @@ void handle_reconfigure_message(MessageNet_t received_payload, TrafficGenerator 
 
     rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
     rm_client_protocol_payload.deserialize(&received_payload);
-    //rm_client_protocol_payload.print();
 
     timestamp_target_restart = rm_client_protocol_payload.get_timestamp_start();
     timestamp_target_reconfig = rm_client_protocol_payload.get_timestamp_reconfig();
@@ -441,25 +423,7 @@ void handle_reconfigure_message(MessageNet_t received_payload, TrafficGenerator 
                 break;
             }
         }
-        
-        if (reconfigured == false)
-        {
-            if (timestamp_target_reconfig.tv_sec != 0 && timestamp_target_reconfig.tv_sec >= time_now.tv_sec)
-            {
-                if (time_now.tv_sec > timestamp_target_reconfig.tv_sec || (time_now.tv_sec == timestamp_target_reconfig.tv_sec && time_now.tv_nsec > timestamp_target_reconfig.tv_nsec))
-                {        
-                    traffic_generator.notify_generator_mode_change(THREAD_RECONFIGURE, mode);                   
-                    RM_logInfo("process reconfigured with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-                    reconfigured = true;
-                }
-            }
-            else 
-            {
-                RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
-                break;
-            }
-        }
-        
+                
         if (restarted == false)
         {
             if (timestamp_target_restart.tv_sec != 0 && timestamp_target_restart.tv_sec >= time_now.tv_sec)
@@ -487,34 +451,70 @@ void handle_reconfigure_message(MessageNet_t received_payload, TrafficGenerator 
 /*
 *
 */
-void handle_reconfigure_message_soft(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
+void handle_sync_reconfigure_sw_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
 {
     struct timespec time_now = {0,0};
-
-    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;
-    received_payload.reset();
-    rm_client_protocol_payload.deserialize(&received_payload);
-
-    clock_gettime(CLOCK_REALTIME, &time_now);
-    //traffic_generator.notify_generator(THREAD_RECONFIGURE);
-    traffic_generator.notify_generator_mode_change(THREAD_RECONFIGURE, mode);                   
-    RM_logInfo("process reconfigured with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-    return;
-}
-
-
-/*
-*
-*/
-void handle_sync_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator)
-{
-    struct timespec time_now = {0,0};
+    struct timespec timestamp_target_stop = {0,0};
+    struct timespec timestamp_target_reconfig = {0,0};
     struct timespec timestamp_target_restart = {0,0};
 
     rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
     rm_client_protocol_payload.deserialize(&received_payload);
 
     timestamp_target_restart = rm_client_protocol_payload.get_timestamp_start();
+    timestamp_target_reconfig = rm_client_protocol_payload.get_timestamp_reconfig();
+    timestamp_target_stop = rm_client_protocol_payload.get_timestamp_stop();
+
+    RM_logInfo("Timestamp Received stop     : " << timestamp_target_stop.tv_sec     << " s, " << timestamp_target_stop.tv_nsec     << " ns")
+    RM_logInfo("Timestamp Received reconfig : " << timestamp_target_reconfig.tv_sec << " s, " << timestamp_target_reconfig.tv_nsec << " ns")
+    RM_logInfo("Timestamp Received restart  : " << timestamp_target_restart.tv_sec  << " s, " << timestamp_target_restart.tv_nsec  << " ns")
+
+    bool stopped = false;
+    bool reconfigured = false;
+    bool restarted = false;
+    while(true)
+    {            
+        clock_gettime(CLOCK_REALTIME, &time_now);
+
+        
+        if (reconfigured == false)
+        {
+            if (timestamp_target_reconfig.tv_sec != 0 && timestamp_target_reconfig.tv_sec >= time_now.tv_sec)
+            {
+                if (time_now.tv_sec > timestamp_target_reconfig.tv_sec || (time_now.tv_sec == timestamp_target_reconfig.tv_sec && time_now.tv_nsec > timestamp_target_reconfig.tv_nsec))
+                {        
+                    traffic_generator.notify_generator_mode_change(THREAD_TRANSMISSION, mode);                   
+                    RM_logInfo("process reconfigured with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
+                    reconfigured = true;
+                    break;
+                }
+            }
+            else 
+            {
+                RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
+                break;
+            }
+        }
+    }
+
+    return;
+}
+
+/*
+*
+*/
+void handle_sync_start_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
+{
+    struct timespec time_now = {0,0};
+    struct timespec timestamp_target_restart = {0,0};
+
+    std::chrono::steady_clock::time_point timestamp_start_generator;
+
+    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
+    rm_client_protocol_payload.deserialize(&received_payload);
+
+    timestamp_target_restart = rm_client_protocol_payload.get_timestamp_start();
+    timestamp_start_generator = timespec_to_steady(timestamp_target_restart);
 
     RM_logInfo("Timestamp Received restart  : " << timestamp_target_restart.tv_sec  << " s, " << timestamp_target_restart.tv_nsec  << " ns")
     
@@ -529,7 +529,8 @@ void handle_sync_start_message(MessageNet_t received_payload, TrafficGenerator &
             {
                 if (time_now.tv_sec > timestamp_target_restart.tv_sec || (time_now.tv_sec == timestamp_target_restart.tv_sec && time_now.tv_nsec > timestamp_target_restart.tv_nsec))
                 {        
-                    traffic_generator.notify_generator(THREAD_TRANSMISSION);                   
+                    //traffic_generator.notify_generator_sync(THREAD_TRANSMISSION, timestamp_target_restart);  
+                    traffic_generator.notify_generator_timestamp(THREAD_TRANSMISSION, timestamp_target_restart, mode, true);                  
                     clock_gettime(CLOCK_REALTIME, &time_now);
                     RM_logInfo("endnode started with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
                     //rm_client.send_ack_start();
@@ -652,56 +653,7 @@ void handle_sync_exit_message(MessageNet_t received_payload, TrafficGenerator &t
 /*
 *
 */
-void handle_sync_pause_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator)
-{
-    struct timespec time_now = {0,0};
-    struct timespec timestamp_target_stop = {0,0};
-
-    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;
-    received_payload.reset();
-    rm_client_protocol_payload.deserialize(&received_payload);
-
-    timestamp_target_stop = rm_client_protocol_payload.get_timestamp_stop();
-
-    RM_logInfo("Timestamp Received restart s: " << timestamp_target_stop.tv_sec << " ns: " << timestamp_target_stop.tv_nsec)
-
-    bool paused = false;
-    while(true)
-    {            
-        clock_gettime(CLOCK_REALTIME, &time_now);
-        
-        if (paused == false)
-        {
-            if (timestamp_target_stop.tv_sec != 0 && timestamp_target_stop.tv_sec >= time_now.tv_sec)
-            {
-                if (time_now.tv_sec > timestamp_target_stop.tv_sec || (time_now.tv_sec == timestamp_target_stop.tv_sec && time_now.tv_nsec > timestamp_target_stop.tv_nsec))
-                {        
-                    traffic_generator.notify_generator(THREAD_PAUSED);                  
-                    clock_gettime(CLOCK_REALTIME, &time_now);
-                    RM_logInfo("endnode paused with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-                    //rm_client.send_ack_start();
-                    //sendRMMessage(sender_ID, std::ref(socket), destination_endpoint, RECONFDONE, content, mode, iterator);
-                    paused = true;
-                    break;
-                }
-            }
-            else 
-            {
-                RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
-                break;
-            }
-        }
-
-    }
-
-    return;
-}
-
-
-/*
-*
-*/
-void handle_sync_reconfigure_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
+void handle_sync_reconfigure_sync_object_hw_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
 {
     struct timespec time_now = {0,0};
     struct timespec timestamp_target_stop = {0,0};
@@ -710,11 +662,39 @@ void handle_sync_reconfigure_message(MessageNet_t received_payload, TrafficGener
 
     rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
     rm_client_protocol_payload.deserialize(&received_payload);
-    //rm_client_protocol_payload.print();
 
     timestamp_target_restart = rm_client_protocol_payload.get_timestamp_start();
     timestamp_target_reconfig = rm_client_protocol_payload.get_timestamp_reconfig();
     timestamp_target_stop = rm_client_protocol_payload.get_timestamp_stop();
+
+    RM_logInfo("Timestamp Received stop     : " << timestamp_target_stop.tv_sec     << " s, " << timestamp_target_stop.tv_nsec     << " ns")
+    RM_logInfo("Timestamp Received reconfig : " << timestamp_target_reconfig.tv_sec << " s, " << timestamp_target_reconfig.tv_nsec << " ns")
+    RM_logInfo("Timestamp Received restart  : " << timestamp_target_restart.tv_sec  << " s, " << timestamp_target_restart.tv_nsec  << " ns")
+
+    return;
+}
+
+
+/*
+*
+*/
+void handle_sync_reconfigure_sync_object_sw_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
+{
+    struct timespec time_now = {0,0};
+    struct timespec timestamp_target_stop = {0,0};
+    struct timespec timestamp_target_reconfig = {0,0};
+    struct timespec timestamp_target_restart = {0,0};
+
+    std::chrono::steady_clock::time_point timestamp_start_generator;
+
+    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
+    rm_client_protocol_payload.deserialize(&received_payload);
+
+    timestamp_target_restart = rm_client_protocol_payload.get_timestamp_start();
+    timestamp_target_reconfig = rm_client_protocol_payload.get_timestamp_reconfig();
+    timestamp_target_stop = rm_client_protocol_payload.get_timestamp_stop();
+
+    timestamp_start_generator = timespec_to_steady(timestamp_target_restart);
 
     RM_logInfo("Timestamp Received stop     : " << timestamp_target_stop.tv_sec     << " s, " << timestamp_target_stop.tv_nsec     << " ns")
     RM_logInfo("Timestamp Received reconfig : " << timestamp_target_reconfig.tv_sec << " s, " << timestamp_target_reconfig.tv_nsec << " ns")
@@ -727,57 +707,38 @@ void handle_sync_reconfigure_message(MessageNet_t received_payload, TrafficGener
     {            
         clock_gettime(CLOCK_REALTIME, &time_now);
 
-        if (stopped == false)
-        {
-            if (timestamp_target_stop.tv_sec != 0 && timestamp_target_stop.tv_sec >= time_now.tv_sec)
-            {
-                if (time_now.tv_sec > timestamp_target_stop.tv_sec || (time_now.tv_sec == timestamp_target_stop.tv_sec && time_now.tv_nsec > timestamp_target_stop.tv_nsec))
-                {        
-                    traffic_generator.notify_generator(THREAD_PAUSED);                   
-                    RM_logInfo("process stopped with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-                    stopped = true;
-                }
-            }
-            else 
-            {
-                RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
-                break;
-            }
-        }
-        
         if (reconfigured == false)
         {
             if (timestamp_target_reconfig.tv_sec != 0 && timestamp_target_reconfig.tv_sec >= time_now.tv_sec)
             {
                 if (time_now.tv_sec > timestamp_target_reconfig.tv_sec || (time_now.tv_sec == timestamp_target_reconfig.tv_sec && time_now.tv_nsec > timestamp_target_reconfig.tv_nsec))
                 {        
-                    traffic_generator.notify_generator_mode_change(THREAD_RECONFIGURE, mode);                   
-                    RM_logInfo("process reconfigured with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
+                    traffic_generator.notify_generator(THREAD_TRANSMISSION_FINISH_OBJECT);                   
+                    RM_logInfo("RM_C process is interrupted with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
                     reconfigured = true;
                 }
             }
             else 
             {
-                RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
+                RM_logInfo("RM_C timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
                 break;
             }
         }
-        
         if (restarted == false)
         {
             if (timestamp_target_restart.tv_sec != 0 && timestamp_target_restart.tv_sec >= time_now.tv_sec)
             {
                 if (time_now.tv_sec > timestamp_target_restart.tv_sec || (time_now.tv_sec == timestamp_target_restart.tv_sec && time_now.tv_nsec > timestamp_target_restart.tv_nsec))
                 {        
-                    traffic_generator.notify_generator(THREAD_TRANSMISSION);                   
-                    RM_logInfo("process started with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
+                    traffic_generator.notify_generator_timestamp(THREAD_TRANSMISSION, timestamp_target_restart, mode, true); 
+                    RM_logInfo("RM_C process started in new slot with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
                     restarted = true;
                     break;
                 }
             }
             else 
             {
-                RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
+                RM_logInfo("RM_C timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
                 break;
             }
         }
@@ -790,88 +751,11 @@ void handle_sync_reconfigure_message(MessageNet_t received_payload, TrafficGener
 /*
 *
 */
-void handle_sync_reconfigure_soft_message(MessageNet_t received_payload, TrafficGenerator &traffic_generator, uint32_t mode)
+std::chrono::steady_clock::time_point timespec_to_steady(const struct timespec& timestamp)
 {
-    struct timespec time_now = {0,0};
-    struct timespec timestamp_target_stop = {0,0};
-    struct timespec timestamp_target_reconfig = {0,0};
-    struct timespec timestamp_target_restart = {0,0};
+    // Convert to total nanoseconds
+    auto total_ns = seconds(timestamp.tv_sec) + nanoseconds(timestamp.tv_nsec);
 
-    rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
-    rm_client_protocol_payload.deserialize(&received_payload);
-    //rm_client_protocol_payload.print();
-
-    timestamp_target_restart = rm_client_protocol_payload.get_timestamp_start();
-    timestamp_target_reconfig = rm_client_protocol_payload.get_timestamp_reconfig();
-    timestamp_target_stop = rm_client_protocol_payload.get_timestamp_stop();
-
-    RM_logInfo("Timestamp Received stop     : " << timestamp_target_stop.tv_sec     << " s, " << timestamp_target_stop.tv_nsec     << " ns")
-    RM_logInfo("Timestamp Received reconfig : " << timestamp_target_reconfig.tv_sec << " s, " << timestamp_target_reconfig.tv_nsec << " ns")
-    RM_logInfo("Timestamp Received restart  : " << timestamp_target_restart.tv_sec  << " s, " << timestamp_target_restart.tv_nsec  << " ns")
-
-    bool stopped = false;
-    bool reconfigured = false;
-    bool restarted = false;
-    while(true)
-    {            
-        clock_gettime(CLOCK_REALTIME, &time_now);
-
-        // if (stopped == false)
-        // {
-        //     if (timestamp_target_stop.tv_sec != 0 && timestamp_target_stop.tv_sec >= time_now.tv_sec)
-        //     {
-        //         if (time_now.tv_sec > timestamp_target_stop.tv_sec || (time_now.tv_sec == timestamp_target_stop.tv_sec && time_now.tv_nsec > timestamp_target_stop.tv_nsec))
-        //         {        
-        //             traffic_generator.notify_generator(THREAD_PAUSED);                   
-        //             RM_logInfo("process stopped with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-        //             stopped = true;
-        //         }
-        //     }
-        //     else 
-        //     {
-        //         RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
-        //         break;
-        //     }
-        // }
-        
-        if (reconfigured == false)
-        {
-            if (timestamp_target_reconfig.tv_sec != 0 && timestamp_target_reconfig.tv_sec >= time_now.tv_sec)
-            {
-                if (time_now.tv_sec > timestamp_target_reconfig.tv_sec || (time_now.tv_sec == timestamp_target_reconfig.tv_sec && time_now.tv_nsec > timestamp_target_reconfig.tv_nsec))
-                {        
-                    traffic_generator.notify_generator_mode_change(THREAD_RECONFIGURE, mode);                   
-                    RM_logInfo("process reconfigured with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-                    reconfigured = true;
-                    break;
-                }
-            }
-            else 
-            {
-                RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
-                break;
-            }
-        }
-        
-        // if (restarted == false)
-        // {
-        //     if (timestamp_target_restart.tv_sec != 0 && timestamp_target_restart.tv_sec >= time_now.tv_sec)
-        //     {
-        //         if (time_now.tv_sec > timestamp_target_restart.tv_sec || (time_now.tv_sec == timestamp_target_restart.tv_sec && time_now.tv_nsec > timestamp_target_restart.tv_nsec))
-        //         {        
-        //             traffic_generator.notify_generator(THREAD_TRANSMISSION);                   
-        //             RM_logInfo("process started with timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-        //             restarted = true;
-        //             break;
-        //         }
-        //     }
-        //     else 
-        //     {
-        //         RM_logInfo("timestamps invalid! current time is " << time_now.tv_sec << " s " << time_now.tv_nsec << " ns")
-        //         break;
-        //     }
-        // }
-    }
-
-    return;
+    // Create time_point from duration
+    return std::chrono::steady_clock::time_point(duration_cast<steady_clock::duration>(total_ns));
 }

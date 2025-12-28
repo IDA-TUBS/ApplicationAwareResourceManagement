@@ -119,30 +119,6 @@ void RMAbstraction::sync_ack_reconfigure_done(MessageNet_t *rm_payload, serviceI
 /*
 *
 */
-void RMAbstraction::resource_request(MessageNet_t *rm_payload, application_identification app_meta, uint8_t message_mode)
-{   
-    control_channel.send_request(  
-        central_rm_address,
-        app_meta.entity_type, 
-        app_meta.priority, 
-        app_meta.client_id, 
-        message_mode,
-        app_meta.service_id,
-        app_meta.protocol_id,
-        rm_payload
-    );
-
-    if(!rm_handler_running)
-    {
-        rm_receiver = std::thread{&RMAbstraction::rm_handler, this};
-        rm_handler_running = true;
-    }
-}
-
-
-/*
-*
-*/
 void RMAbstraction::resource_release(serviceID_t service_id)
 {
     control_channel.send_release(
@@ -157,11 +133,15 @@ void RMAbstraction::resource_release(serviceID_t service_id)
 /*
 *
 */
-void RMAbstraction::send_ack(RMMessage message, application_identification app_meta, udp::endpoint endpoint_sender)
-{
-    control_channel.send_ack(endpoint_sender, message.source_id, app_meta.client_id, message.mode, message.service_id);
+void RMAbstraction::send_error(uint32_t interface_id, uint32_t interface_speed)
+{   
+    control_channel.send_error(  
+        central_rm_address, 
+        rm_client_id,
+        interface_id,
+        interface_speed
+    );
 }
-
 
 /*
 *
@@ -208,8 +188,6 @@ bool RMAbstraction::check_next_control_message_aviable()
 */
 rscmng::wired::RMMessage RMAbstraction::get_next_control_message()
 {
-    //rscmng::wired::RMMessage message = rm_client_out_queue.dequeue();
-    //message.print();
     return rm_client_out_queue.dequeue();
 }
 

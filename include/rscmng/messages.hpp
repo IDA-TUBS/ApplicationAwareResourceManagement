@@ -39,29 +39,28 @@ namespace rscmng {
     { 
         NOOP = 0,
 
-        //Timestamp
-        SYNC_TIMESTAMP,
+        ERROR_INTERFACE,
         RM_CLIENT_START,
         RM_CLIENT_STOP,
         RM_CLIENT_PAUSE,
-        RM_CLIENT_RECONFIGURE,
+        RM_CLIENT_RECONFIGURE_HW,
+        RM_CLIENT_RECONFIGURE_SW,
+        RM_CLIENT_EXIT,
+
         RM_CLIENT_SYNC_TIMESTAMP_START,
         RM_CLIENT_SYNC_TIMESTAMP_STOP,
         RM_CLIENT_SYNC_TIMESTAMP_PAUSE,
         RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE,
-        RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SOFT,
+        RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_HW,
+        RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SW,
+        RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SYNC_OBJECT_HW,
+        RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SYNC_OBJECT_SW,
         RM_CLIENT_SYNC_TIMESTAMP_EXIT,
         RM_CLIENT_SYNC_REQUEST,
         RM_CLIENT_SYNC_RECEIVE,
         RM_CLIENT_SYNC_RECONFIGURE_DONE,
-        RM_CLIENT_EXIT,
 
-        RM_CLIENT_REQUEST,
-        RM_CLIENT_RELEASE,
-
-        ACK,
-        NACK
-
+        RM_CLIENT_RELEASE
     };
 
 
@@ -303,6 +302,36 @@ namespace rscmng {
             char* payload, 
             size_t payload_size,
             struct timespec timestamp
+        );
+
+        /**
+         * @brief Set the payload of the data message
+         * 
+         * @param frag_num sequence number of the fragment
+         * @param timestamp
+         */
+        void set_timestamp(   
+            struct timespec new_timestamp
+        );
+
+        /**
+         * @brief Set the payload of the data message
+         * 
+         * @param frag_num sequence number of the fragment
+         * @param timestamp
+         */
+
+        void set_packet_number(   
+            uint32_t packet_number
+        );
+
+                /**
+         * @brief Set the payload of the data message
+         * 
+         * @param payload_size size of the payload byte stream
+         */
+        void set_payload_size(   
+            size_t payload_size
         );
 
 

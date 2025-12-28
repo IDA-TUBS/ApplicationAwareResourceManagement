@@ -171,7 +171,13 @@ class NetLayerRM
      * @brief 
      * 
      */
-    struct timespec prepare_timestamp(struct timespec time_stamp, std::chrono::milliseconds delay);
+    struct timespec prepare_timestamp_add(struct timespec time_stamp, std::chrono::milliseconds delay);
+
+    /**
+     * @brief 
+     * 
+     */
+    struct timespec prepare_timestamp_sub(struct timespec time_stamp, std::chrono::milliseconds delay);
 
     /**
      * @brief 
@@ -183,31 +189,37 @@ class NetLayerRM
      * @brief 
      * 
      */
+    void experiment_selection();
+
+    /**
+     * @brief 
+     * 
+     */
     void experiment_mode_change();
 
     /**
      * @brief 
      * 
      */
-    void experiment_mode_change_synchronous();
+    void experiment_mode_change_time_triggered_asynchonous_objects_hw();
 
     /**
      * @brief 
      * 
      */
-    void experiment_mode_change_asynchronous();
+    void experiment_mode_change_time_triggered_asynchonous_objects_sw();
 
     /**
      * @brief 
      * 
      */
-    void experiment_mode_change_synchronous_asynchonous_objects();
+    void experiment_mode_change_time_triggered_synchronous_objects_hw();
 
     /**
      * @brief 
      * 
      */
-    uint32_t calculate_service_slot(uint32_t network_mode, serviceID_t service_id);
+    void experiment_mode_change_time_triggered_synchronous_objects_sw();
 
     /**
      * @brief 
@@ -225,19 +237,25 @@ class NetLayerRM
      * @brief 
      * 
      */
-    void send_synchronous_reconfigure(struct timespec stop_time, struct timespec recofig_time, struct timespec start_time, udp::endpoint target_address, serviceID_t service_id, uint32_t mode);
+    void send_synchronous_reconfigure(struct timespec stop_time, struct timespec recofig_time, struct timespec start_time, udp::endpoint target_address, serviceID_t service_id, uint32_t network_mode, uint32_t mc_iterator);
+   
+    /**
+     * @brief 
+     * 
+     */
+    void send_time_triggered_synchronous_reconfigure_type(struct timespec stop_time, struct timespec recofig_time, struct timespec start_time, udp::endpoint target_address, serviceID_t service_id, uint32_t network_mode, MessageTypes message_type, uint32_t mc_iterator);
 
     /**
      * @brief 
      * 
      */
-    void send_asynchronous_reconfigure(udp::endpoint target_address, serviceID_t service_id, uint32_t network_mode);
+    void send_asynchronous_reconfigure(udp::endpoint target_address, serviceID_t service_id, uint32_t network_mode, uint32_t mc_iterator);
 
     /**
      * @brief 
      * 
      */
-    void send_synchronous_start(struct timespec target_time, udp::endpoint target_address, serviceID_t service_id);
+    void send_synchronous_start(struct timespec target_time, udp::endpoint target_address, serviceID_t service_id, uint32_t network_mode);
 
     /**
      * @brief 

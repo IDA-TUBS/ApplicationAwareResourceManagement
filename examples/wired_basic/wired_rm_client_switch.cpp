@@ -19,11 +19,20 @@
 
 
 #include <iostream>
+//#include <filesystem>
 #include <thread>
 #include <chrono>
 #include <unistd.h>
 #include <mutex>
 #include <condition_variable>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <utility>
+#include <functional> 
+//#include <experimental/filesystem>
+#include <dirent.h>     // for opendir, readdir, closedir
+#include <sys/types.h>  // for DIR
 
 #include <rscmng/utils/log.hpp>
 #include <rscmng/utils/config_reader.hpp>
@@ -38,7 +47,8 @@ using namespace wired;
 using namespace basic_protocol;
 using namespace traffic_generator; 
 using namespace config;
-
+//namespace fs = std::filesystem;
+//namespace fs = std::experimental::filesystem;
 
 #define SCRIPT_PATH_BASE "./scripts/"
 #define SCRIPT_MODE00 "_switch_m0"
@@ -55,15 +65,17 @@ std::condition_variable cv_traffic_generator_notification;
 std::mutex cv_mutex;
 
 void handle_start_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number);
-void handle_reconfigure_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number);
+void handle_reconfigure_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number, uint32_t mc_number);
 
 void handle_sync_start_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number);
-void handle_sync_reconfigure_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number);
+void handle_sync_reconfigure_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number, uint32_t mc_number);
 
-void reconfigure_sw_to_mode(uint32_t mode, uint8_t experiment_number);
+void reconfigure_sw_to_mode(uint32_t mode, uint8_t experiment_number, uint32_t mc_number);
 
 void handle_exit_message(MessageNet_t received_payload);
 void handle_sync_exit_message(MessageNet_t received_payload);
+
+std::vector<std::pair<std::string, int>> check_interfaces();
 
 
 /*
@@ -103,7 +115,7 @@ int main(int argc, char* argv[])
     ConfigReader config_reader;
     struct rscmng::config::unit_settings client_configuration  = config_reader.load_unit_settings(host_name, DEFAULT_CONFIG);
     struct rscmng::config::experiment_parameter experiment_parameter = config_reader.load_experiment_settings(DEFAULT_CONFIG);
-    RM_logInfo("Load config done.") 
+    RM_logInfo("RM client switch Load config done.") 
 
 
     // initialize variables
@@ -111,7 +123,7 @@ int main(int argc, char* argv[])
     MessageNet_t rm_payload_sendout;
     // payload
     rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;
-    RM_logInfo("Variables init done.") 
+    RM_logInfo("RM client switchVariables init done.") 
 
     
     // Initialize RM client
@@ -122,13 +134,29 @@ int main(int argc, char* argv[])
 
     struct timespec time_now = {0,0};
     clock_gettime(CLOCK_REALTIME, &time_now);
-    RM_logInfo("switch started on timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
+    RM_logInfo("RM client switch started on timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
 
     init_done = true;    
     RM_logInfo(" ")
 
     sleep(2);
 
+    std::vector<std::pair<std::string, int>> slow_interfaces_vector;
+    slow_interfaces_vector = check_interfaces();
+    if (!slow_interfaces_vector.empty()) 
+    {
+        //RM_logInfo("RM client switch Inferface error")
+        for (const auto& entry : slow_interfaces_vector) 
+        {
+            const std::string& interface = entry.first;
+            int speed = entry.second;
+            uint32_t interface_id = static_cast<uint32_t>(std::hash<std::string>{}(interface));
+            //RM_logInfo("RM client switch sending")
+            //rm_client.send_error(static_cast<uint32_t>(interface_id), static_cast<uint32_t>(speed));
+            RM_logInfo("RM client switch ERROR at" << interface << " with speed: " << speed << " Mb/s")
+        }        
+    }
+    
     rm_client.sync_request(&rm_payload_sendout, client_configuration.client_id);
     
     while(active)
@@ -155,10 +183,10 @@ int main(int argc, char* argv[])
                         handle_start_message(rm_payload_received, recieved_control_message.mode, experiment_number);
                         break;
 
-                    case MessageTypes::RM_CLIENT_RECONFIGURE:
-                        RM_logInfo("RM Message RM_CLIENT_RECONFIGURE")
+                    case MessageTypes::RM_CLIENT_RECONFIGURE_HW:
+                        RM_logInfo("RM Message RM_CLIENT_RECONFIGURE_HW")
                         rm_client.sync_ack_receive(&rm_payload_sendout, client_configuration.client_id);
-                        handle_reconfigure_message(rm_payload_received, recieved_control_message.mode, experiment_number);
+                        handle_reconfigure_message(rm_payload_received, recieved_control_message.mode, experiment_number, recieved_control_message.destination_id);
                         rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, client_configuration.client_id);
                         break;
                         
@@ -167,13 +195,18 @@ int main(int argc, char* argv[])
                         rm_client.sync_ack_receive(&rm_payload_sendout, client_configuration.client_id);
                         handle_sync_start_message(rm_payload_received, recieved_control_message.mode, experiment_number);
                         break;
-                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_STOP:
-                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_STOP")
-                        break;
-                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE:
-                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE")
+
+                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_HW:
+                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_HW")
                         rm_client.sync_ack_receive(&rm_payload_sendout, client_configuration.client_id);
-                        handle_sync_reconfigure_message(rm_payload_received, recieved_control_message.mode, experiment_number);
+                        handle_sync_reconfigure_message(rm_payload_received, recieved_control_message.mode, experiment_number, recieved_control_message.destination_id);
+                        rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, client_configuration.client_id);
+                        break;
+
+                    case MessageTypes::RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SYNC_OBJECT_HW:
+                        RM_logInfo("RM Message RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE_SYNC_OBJECT_HW")
+                        rm_client.sync_ack_receive(&rm_payload_sendout, client_configuration.client_id);
+                        handle_sync_reconfigure_message(rm_payload_received, recieved_control_message.mode, experiment_number, recieved_control_message.destination_id);
                         rm_client.sync_ack_reconfigure_done(&rm_payload_sendout, client_configuration.client_id);
                         break;
 
@@ -212,9 +245,8 @@ void handle_start_message(MessageNet_t received_payload, uint32_t mode, uint8_t 
 {
     rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
     rm_client_protocol_payload.deserialize(&received_payload);
-    //rm_client_protocol_payload.print();
 
-    reconfigure_sw_to_mode(mode, experiment_number);
+    reconfigure_sw_to_mode(mode, experiment_number, 0);
 
     return;
 }
@@ -223,13 +255,12 @@ void handle_start_message(MessageNet_t received_payload, uint32_t mode, uint8_t 
 /*
 *
 */
-void handle_reconfigure_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number)
+void handle_reconfigure_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number, uint32_t mc_number)
 {
     rscmng::rm_wired_basic_protocol::RMPayload rm_client_protocol_payload;     
     rm_client_protocol_payload.deserialize(&received_payload);
-    //rm_client_protocol_payload.print();
 
-    reconfigure_sw_to_mode(mode, experiment_number);
+    reconfigure_sw_to_mode(mode, experiment_number, mc_number);
 
     return;
 }
@@ -263,7 +294,7 @@ void handle_sync_start_message(MessageNet_t received_payload, uint32_t mode, uin
                 if (time_now.tv_sec > timestamp_target_restart.tv_sec || (time_now.tv_sec == timestamp_target_restart.tv_sec && time_now.tv_nsec > timestamp_target_restart.tv_nsec))
                 {        
                     RM_logInfo("switch started on timestamp : " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-                    reconfigure_sw_to_mode(mode, experiment_number);
+                    reconfigure_sw_to_mode(mode, experiment_number, 0);
                     started = true;
                     break;
                 }
@@ -282,7 +313,7 @@ void handle_sync_start_message(MessageNet_t received_payload, uint32_t mode, uin
 /*
 *
 */
-void handle_sync_reconfigure_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number)
+void handle_sync_reconfigure_message(MessageNet_t received_payload, uint32_t mode, uint8_t experiment_number, uint32_t mc_number)
 {
     struct timespec time_now = {0,0};
     struct timespec timestamp_target_stop = {0,0};
@@ -316,7 +347,7 @@ void handle_sync_reconfigure_message(MessageNet_t received_payload, uint32_t mod
                 if (time_now.tv_sec > timestamp_target_reconfig.tv_sec || (time_now.tv_sec == timestamp_target_reconfig.tv_sec && time_now.tv_nsec > timestamp_target_reconfig.tv_nsec))
                 {        
                     RM_logInfo("switch reconfigured on timestamp: " << time_now.tv_sec << " s " << time_now.tv_nsec  << " ns")
-                    reconfigure_sw_to_mode(mode, experiment_number);
+                    reconfigure_sw_to_mode(mode, experiment_number, mc_number);
                     reconfigured = true;
                     break;
                 }
@@ -399,8 +430,12 @@ void handle_sync_exit_message(MessageNet_t received_payload)
 /*
 *
 */
-void reconfigure_sw_to_mode(uint32_t mode, uint8_t experiment_number)
+void reconfigure_sw_to_mode(uint32_t mode, uint8_t experiment_number, uint32_t mc_number)
 {
+    struct timespec time_now;
+    clock_gettime(CLOCK_REALTIME, &time_now);
+    RM_logInfo("Start  Reconfiguration " << std::to_string(mc_number) << " of Mode: " << std::to_string(mode) << " time now: " << time_now.tv_sec << " s, " << time_now.tv_nsec << " ns");
+
     char cmd_buf[128];
     if(mode == 0)
     {
@@ -420,5 +455,56 @@ void reconfigure_sw_to_mode(uint32_t mode, uint8_t experiment_number)
         return;
     }
     system(cmd_buf);
+    clock_gettime(CLOCK_REALTIME, &time_now);
+    RM_logInfo("Finish Reconfiguration " << std::to_string(mc_number) << " of Mode: " << std::to_string(mode) << " time now: " << time_now.tv_sec << " s, " << time_now.tv_nsec << " ns");
     RM_logInfo("RM client execution of script: " << cmd_buf)
+}
+
+
+/*
+*
+*/
+std::vector<std::pair<std::string, int>> check_interfaces()
+{
+    const std::string basePath = "/sys/class/net/";
+    std::vector<std::pair<std::string, int>> slow_interfaces;
+
+    DIR* dir = opendir(basePath.c_str());
+    if (!dir) 
+    {
+        RM_logInfo("Could not read path dir")
+        return slow_interfaces;
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) 
+    {
+        std::string interface(entry->d_name);
+
+        // Skip "." and ".."
+        if (interface == "." || interface == "..")
+            continue;
+
+        // Only check interfaces starting with "enp"
+        if (interface.rfind("enp", 0) == 0) {
+            std::string speedPath = basePath + interface + "/speed";
+            std::ifstream speedFile(speedPath);
+
+            if (!speedFile.is_open()) 
+            {
+                std::cerr << "Could not read speed for interface: " << interface << "\n";
+                continue;
+            }
+
+            int speed = 0;
+            speedFile >> speed;
+
+            if (speed == 100) 
+            {
+                RM_logInfo("ERROR: Interface only running at 100 Mb/s " << interface)
+                slow_interfaces.emplace_back(interface, speed);                
+            } 
+        }
+    }
+    return slow_interfaces;
 }

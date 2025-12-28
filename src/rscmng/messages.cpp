@@ -321,6 +321,31 @@ void DataMessage::set_payload(uint32_t object_number, uint32_t fragment_number, 
     memcpy(payload, payload, size);    
 }
 
+/*
+*
+*/
+void DataMessage::set_timestamp( struct timespec new_timestamp)
+{
+    timestamp = new_timestamp;
+}
+
+/*
+*
+*/
+void DataMessage::set_packet_number(uint32_t packet_number)
+{
+    fragment_number = packet_number; 
+}
+
+/*
+*
+*/
+void DataMessage::set_payload_size( size_t payload_size)
+{
+    payload_length = payload_size;
+}
+
+
 void DataMessage::change_source_id(uint32_t new_id)
 {
     source_id = new_id;

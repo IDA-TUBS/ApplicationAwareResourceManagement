@@ -178,16 +178,10 @@ namespace rscmng {
              * @brief Sends a request message to the RM
              * 
              * @param rm_payload requested rm_payload 
-             */
-            void resource_request(MessageNet_t *rm_payload, application_identification app_meta, uint8_t mode);
-
-            /**
-             * @brief Sends a request message to the RM
-             * 
-             * @param rm_payload requested rm_payload 
              * @param service_id
              */
             void sync_ack_receive(MessageNet_t *rm_payload, serviceID_t service_id);
+
 
             /**
              * @brief Sends a request message to the RM
@@ -197,6 +191,7 @@ namespace rscmng {
              */
             void sync_ack_reconfigure_done(MessageNet_t *rm_payload, serviceID_t service_id);
 
+
             /**
              * @brief Sends a release message to the RM
              * 
@@ -204,12 +199,6 @@ namespace rscmng {
              */
             void resource_release(serviceID_t service_id);
 
-            /**
-             * @brief Sends an adapt message to the RM
-             *
-             * @param rm_payload adapted rm_payload
-             */
-            void resource_adapt(MessageNet_t *rm_payload, application_identification app_meta);
 
             /**
              * @brief Send acknowledgement for resource management messages
@@ -219,17 +208,26 @@ namespace rscmng {
              */
             void send_ack(RMMessage message, application_identification app_meta, udp::endpoint endpoint_sender);
 
+
+            /*
+            *
+            */
+            void send_error(uint32_t interface_id, uint32_t interface_speed);
+
+
             /**
              * @brief Generic Handler for resource management messages. To be used after successfull allocation
              * 
              */
             void rm_handler();
 
+
             /**
              * @brief 
              * 
              */
             bool check_next_control_message_aviable();
+
 
             /**
              * @brief 
@@ -254,8 +252,6 @@ namespace rscmng {
             udp::endpoint central_rm_address; 
             
             rscmng::wired::RMCommunication control_channel;
-
-            //MessageNet_t &rm_payload;
 
             std::condition_variable &rm_notification;
 

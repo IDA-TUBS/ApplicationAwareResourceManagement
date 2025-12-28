@@ -109,11 +109,12 @@ void RMCommunication::send_rm_message(
 void RMCommunication::send_start(   
     udp::endpoint target_address, 
     uint32_t source_id, 
+    uint8_t mode,
     serviceID_t service_id,
     MessageNet_t* payload  
 )
 {
-    RMMessage rm_message_out(RM_CLIENT_START, demonstrator::RM_PRIORITY, source_id, source_id, service_id, 0, RM_BASIC, payload);
+    RMMessage rm_message_out(RM_CLIENT_START, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
 
     sendout_control_message(rm_message_out, target_address);
 
@@ -127,12 +128,13 @@ void RMCommunication::send_start(
 void RMCommunication::send_start_sync(   
     udp::endpoint target_address, 
     uint32_t source_id, 
+    uint8_t mode,
     serviceID_t service_id,
     MessageNet_t* payload
 )
 {
-    int mode_id = 0;
-    RMMessage rm_message_out(RM_CLIENT_SYNC_TIMESTAMP_START, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode_id, RM_BASIC, payload);
+    //int mode_id = 0;
+    RMMessage rm_message_out(RM_CLIENT_SYNC_TIMESTAMP_START, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
 
     sendout_control_message(rm_message_out, target_address);
 
@@ -140,28 +142,6 @@ void RMCommunication::send_start_sync(
 }
 
 
-/*
-*
-*/
-void RMCommunication::send_request(   
-    udp::endpoint target_address, 
-    Participant participant_type, 
-    uint8_t priority, 
-    uint32_t source_id, 
-    uint8_t mode,
-    serviceID_t service_id,
-    ProtocolIDs protocol_id, 
-    MessageNet_t* payload
-)
-{
-
-    RMMessage rm_message_out(RM_CLIENT_REQUEST, priority, source_id, source_id, service_id, mode, protocol_id, payload);
-
-    sendout_control_message(rm_message_out, target_address);
-
-    RM_logInfo("Request sent: " << target_address.address() << " " << target_address.port())
-}
-    
 /*
 *
 */
@@ -196,7 +176,7 @@ void RMCommunication::send_sync_receive(
 
     sendout_control_message(rm_message_out, target_address);
 
-    RM_logInfo("REQUEST SYNC sent: " << target_address.address() << " " << target_address.port())
+    RM_logInfo("ACK SYNC sent: " << target_address.address() << " " << target_address.port())
 }
 
 
@@ -215,7 +195,7 @@ void RMCommunication::send_sync_reconfigure_done(
 
     sendout_control_message(rm_message_out, target_address);
 
-    RM_logInfo("REQUEST SYNC sent: " << target_address.address() << " " << target_address.port())
+    RM_logInfo("RECONFIG SYNC sent: " << target_address.address() << " " << target_address.port())
 }
 
 
@@ -225,12 +205,13 @@ void RMCommunication::send_sync_reconfigure_done(
 void RMCommunication::send_reconfig(   
     udp::endpoint target_address, 
     uint32_t source_id, 
+    uint32_t destination_id,
     serviceID_t service_id,
     uint32_t mode,
     MessageNet_t* payload
 )
 {
-    RMMessage rm_message_out(RM_CLIENT_RECONFIGURE, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
+    RMMessage rm_message_out(RM_CLIENT_RECONFIGURE_HW, demonstrator::RM_PRIORITY, source_id, destination_id, service_id, mode, RM_BASIC, payload);
 
     sendout_control_message(rm_message_out, target_address);
 
@@ -244,12 +225,34 @@ void RMCommunication::send_reconfig(
 void RMCommunication::send_sync_reconfig(   
     udp::endpoint target_address, 
     uint32_t source_id, 
+    uint32_t destination_id, 
     serviceID_t service_id,
     uint32_t mode,
     MessageNet_t* payload
 )
 {
-    RMMessage rm_message_out(RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
+    RMMessage rm_message_out(RM_CLIENT_SYNC_TIMESTAMP_RECONFIGURE, demonstrator::RM_PRIORITY, source_id, destination_id, service_id, mode, RM_BASIC, payload);
+
+    sendout_control_message(rm_message_out, target_address);
+
+    RM_logInfo("RECONFIG SYNC sent: " << target_address.address() << " " << target_address.port())
+}
+
+
+/*
+*
+*/
+void RMCommunication::send_sync_reconfig_type(   
+    udp::endpoint target_address, 
+    uint32_t source_id, 
+    uint32_t destination_id,
+    serviceID_t service_id, 
+    uint32_t mode,
+    MessageTypes message_type,
+    MessageNet_t* payload
+)
+{
+    RMMessage rm_message_out(message_type, demonstrator::RM_PRIORITY, source_id, destination_id, service_id, mode, RM_BASIC, payload);
 
     sendout_control_message(rm_message_out, target_address);
 
@@ -279,7 +282,7 @@ void RMCommunication::send_sync_stop(
 /*
 *
 */
-void RMCommunication::send_sync_stop_exit(   
+void RMCommunication::send_stop(   
     udp::endpoint target_address, 
     uint32_t source_id, 
     serviceID_t service_id,
@@ -287,7 +290,7 @@ void RMCommunication::send_sync_stop_exit(
     MessageNet_t* payload
 )
 {
-    RMMessage rm_message_out(RM_CLIENT_SYNC_TIMESTAMP_EXIT, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
+    RMMessage rm_message_out(RM_CLIENT_STOP, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
 
     sendout_control_message(rm_message_out, target_address);
 
@@ -298,7 +301,7 @@ void RMCommunication::send_sync_stop_exit(
 /*
 *
 */
-void RMCommunication::send_stop(   
+void RMCommunication::send_sync_stop_exit(   
     udp::endpoint target_address, 
     uint32_t source_id, 
     serviceID_t service_id,
@@ -306,7 +309,7 @@ void RMCommunication::send_stop(
     MessageNet_t* payload
 )
 {
-    RMMessage rm_message_out(RM_CLIENT_STOP, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
+    RMMessage rm_message_out(RM_CLIENT_SYNC_TIMESTAMP_EXIT, demonstrator::RM_PRIORITY, source_id, source_id, service_id, mode, RM_BASIC, payload);
 
     sendout_control_message(rm_message_out, target_address);
 
@@ -333,66 +336,21 @@ void RMCommunication::send_stop_exit(
 }
 
 
-
 /*
 *
 */
-udp::endpoint RMCommunication::receive_control_message(RMMessage &message)
-{
-    MessageNet_t rm_buffer;
-    size_t rm_buffer_size = 0;
-
-    // Store endpoint for rm_message reply
-    udp::endpoint target_address;
-
-    rm_buffer_size = control_channel_socket.receive_from(boost::asio::buffer(rm_buffer.buffer, rm_buffer.max_size), target_address);
-
-    rm_buffer.length = rm_buffer_size;
-    message.network_to_rm(&rm_buffer);
-
-    return target_address;
-}
-
-
-/*
-*
-*/
-udp::endpoint RMCommunication::receive_control_message(
-    RMMessage &message, 
-    bool &active
+void RMCommunication::send_error(   
+    udp::endpoint target_address, 
+    uint32_t source_id, 
+    uint32_t destination_id, 
+    uint8_t mode
 )
 {
-    control_channel_socket.non_blocking(true);
-    MessageNet_t rm_buffer;
-    size_t rm_message = 0;
-    boost::system::error_code error;
+    RMMessage rm_message_out(ERROR_INTERFACE, demonstrator::RM_PRIORITY, source_id, destination_id, 0, mode, RM_BASIC, nullptr);
 
-    // Store endpoint for rm_message reply
-    udp::endpoint target_address;
+    sendout_control_message(rm_message_out, target_address);
 
-    while(active && rm_message == 0)
-    {
-        rm_message = control_channel_socket.receive_from(boost::asio::buffer(rm_buffer.buffer, rm_buffer.max_size), target_address, 0, error);
-    }
-    
-    if(rm_message > 0)
-    {
-        rm_buffer.length = rm_message;
-        message.network_to_rm(&rm_buffer);
-    }
-    
-    error.clear();
-    control_channel_socket.non_blocking(false);
-    return target_address;
-}
-
-
-/*
-*
-*/
-void RMCommunication::close()
-{
-    control_channel_socket.close();
+    RM_logInfo("ERROR sent: " << target_address.address() << " " << target_address.port())
 }
 
 
@@ -417,29 +375,27 @@ void RMCommunication::send_release(
 /*
 *
 */
-void RMCommunication::send_ack(   
-    udp::endpoint target_address, 
-    uint32_t source_id,
-    uint32_t destination_id,
-    uint8_t mode,
-    serviceID_t service_id
-)
+udp::endpoint RMCommunication::receive_control_message(RMMessage &message)
 {
-    RMMessage rm_message_out(ACK, RMConfig::RM_PRIORITY, source_id, destination_id, service_id, mode);
-    sendout_control_message(rm_message_out, target_address);
+    MessageNet_t rm_buffer;
+    size_t rm_buffer_size = 0;
+
+    // Store endpoint for rm_message reply
+    udp::endpoint target_address;
+
+    rm_buffer_size = control_channel_socket.receive_from(boost::asio::buffer(rm_buffer.buffer, rm_buffer.max_size), target_address);
+
+    rm_buffer.length = rm_buffer_size;
+    message.network_to_rm(&rm_buffer);
+
+    return target_address;
 }
 
 
 /*
 *
 */
-void RMCommunication::send_nack(  
-    udp::endpoint target_address, 
-    uint32_t source_id,
-    uint32_t destination_id, 
-    serviceID_t service_id
-)
+void RMCommunication::close()
 {
-    RMMessage rm_message_out(NACK, RMConfig::RM_PRIORITY, source_id, destination_id, service_id);
-    sendout_control_message(rm_message_out, target_address);
+    control_channel_socket.close();
 }

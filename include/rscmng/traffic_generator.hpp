@@ -59,10 +59,7 @@ namespace traffic_generator
 {
     enum TrafficSourceType
     {
-        OBJECT_SHAPED = 0,
-        OBJECT_BURST,
-        OBJECT_BURST_SHAPED,
-        OBJECT_BURST_SHAPED_IP,
+        OBJECT_BURST_DYNAMIC_CHANGE = 0,
         NORMAL_BURST
     };
 
@@ -72,17 +69,10 @@ namespace traffic_generator
         THREAD_STOP,
         THREAD_PAUSED,
         THREAD_TRANSMISSION,
+        THREAD_TRANSMISSION_FINISH_OBJECT,
         THREAD_RECONFIGURE
     };
 
-
-    struct thread_control 
-    {
-        bool process_started;
-        bool process_send_data;
-        bool stop_sending;
-        bool reconfigured;
-    };
 
     struct traffic_generator_parameter 
     {
@@ -92,16 +82,9 @@ namespace traffic_generator
         std::chrono::microseconds inter_packet_gap;    
         std::chrono::milliseconds period = std::chrono::milliseconds(100);
         long load_mbit_per_second = 200;        
-        u_int32_t number_fragments = 2000;
+        u_int32_t number_packets = 2000;
         long auto_traffic_termination = 5000;
         long slack_factor = 0.75;
-    };
-
-
-    struct socket_endpoint_parameter
-    {
-        std::string ip_addr;
-        uint32_t port;
     };
 
 
@@ -115,15 +98,7 @@ namespace traffic_generator
 
         TrafficSourceControl traffic_generator_control;
 
-        uint32_t global_mode;
-
-        bool open_mc;
-
-        bool process_send_data_1 = false;
-
-        bool process_send_data_2 = false;
-
-        bool process_send_data_3 = false;
+        uint32_t mode_global;
 
         bool stop_thread;
 
@@ -142,19 +117,22 @@ namespace traffic_generator
 
         udp::endpoint traffic_endpoint_local;
 
-        udp::endpoint traffic_endpoint_target;
-
-        udp::endpoint traffic_endpoint_target_alt;
-
         std::map<uint32_t, struct rscmng::config::service_settings> service_settings_struct;
 
         struct rscmng::config::unit_settings client_configuration_struct;
+
+        struct rscmng::config::experiment_parameter experiment_parameter_struct;
 
         traffic_generator_parameter traffic_pattern;
 
         TrafficSourceType traffic_source_type;
 
         std::thread traffic_generator;
+       
+        struct timespec global_period_timestamp;
+        
+        bool global_update_period;
+
         
         /**
          * @brief Construct the Traffic Generator object
@@ -163,6 +141,7 @@ namespace traffic_generator
         TrafficGenerator(
             std::map<uint32_t, struct rscmng::config::service_settings> service_settings,
             struct rscmng::config::unit_settings client_configuration,
+            struct rscmng::config::experiment_parameter experiment_parameter,
             TrafficSourceType traffic_source_type,
             traffic_generator_parameter traffic_pattern
         );
@@ -173,30 +152,64 @@ namespace traffic_generator
          */
         ~TrafficGenerator();
 
+        /**
+         * @brief Start Generator
+         * 
+         */
         void start();
 
+        /**
+         * @brief Stop Generator
+         * 
+         */
         void stop();
 
+        /**
+         * @brief Notify shared transmission state for mutex
+         * 
+         */
         void notify_generator(TrafficSourceControl state);
 
+        /**
+         * @brief Notify shared transmission state for mutex with mode
+         * 
+         */
         void notify_generator_mode_change(TrafficSourceControl state, uint32_t mode);
 
-        void preciseSleep(double seconds);
+        /**
+         * @brief Notify shared transmission state for mutex with mode and new timestamp
+         * 
+         */
+        void notify_generator_timestamp(TrafficSourceControl state, struct timespec, uint32_t mode, bool update_period);
 
+        /**
+         * @brief wait function for shaping
+         * 
+         */
         void precise_wait_us(double microseconds);
 
-        void sendMessagesObjectsShaped();
+        /**
+         * @brief Main send function
+         * 
+         */
+        void send_objects_dynamic_change();
 
-        void sendMessagesObjectsBurst();
+        /**
+         * @brief Main send function
+         * 
+         */
+        void send_objects_dynamic_change_asynchron();
 
-        void sendMessagesObjectsBurstShaped(); 
-
-        void sendMessagesPerSecond(); 
-
-        void sendMessagesObjectsBurstShapedIPChange();
-
+        /**
+         * @brief Select send function
+         * 
+         */
         void thread_type_select ();
 
+        /**
+         * @brief Join threads
+         * 
+         */
         void join();
 
     };
